@@ -1,7 +1,7 @@
 import {
-  ApplicationCommandOptionType,
   EmbedBuilder,
   PermissionsBitField,
+  ApplicationCommandOptionType,
 } from "discord.js";
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
@@ -12,20 +12,9 @@ export default class Help extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "help",
-      description: "Displays a list of available commands grouped by category.",
+      description: "Displays a list of all available commands.",
       category: ECategory.utilities,
-      options: [
-        {
-          name: "category",
-          description: "Filter commands by category.",
-          type: ApplicationCommandOptionType.String,
-          required: false,
-          choices: Object.values(ECategory).map(cat => ({
-            name: cat,
-            value: cat,
-          })),
-        },
-      ],
+      options: [],
       default_member_permissions: PermissionsBitField.Flags.SendMessages,
       dm_permission: true,
       cooldown: 5,
@@ -38,18 +27,12 @@ export default class Help extends Command {
   }
 
   async Execute(context: ICommandExecutionContext): Promise<void> {
-    const rawCategory = context.interaction
-      ? context.interaction.options.getString("category")
-      : context.args[0];
-    const selectedCategory = rawCategory
-      ? Object.values(ECategory).find(
-          category => category.toLowerCase() === rawCategory.toLowerCase(),
-        )
-      : null;
+    const type = context.type;
     const user = context.interaction?.user ?? context.message!.author;
+
     const embed = new EmbedBuilder()
       .setColor("Blue")
-      .setTitle("📚 Bot Help Menu")
+      .setTitle("📚 Command Help")
       .setThumbnail(this.client.user?.displayAvatarURL() || null)
       .setFooter({
         text: `Requested by ${user.tag}`,
@@ -57,43 +40,65 @@ export default class Help extends Command {
       })
       .setTimestamp();
 
-    const commands = this.client.commands;
+    const helpLines: string[] = [];
 
-    if (selectedCategory) {
-      const filteredCommands = commands.filter(
-        cmd => cmd.category === selectedCategory,
+    // Filter commands that support the current context type (slash or prefix)
+    const supportedCommands = this.client.commands.filter(
+      cmd => cmd.supports[type],
+    );
+
+    for (const [_, command] of supportedCommands) {
+      // Find subcommands for this command that also support the current context type
+      const commandSubCommands = this.client.subCommands.filter(
+        sub => sub.commandName === command.name && sub.supports[type],
       );
 
-      if (filteredCommands.size === 0) {
-        embed.setDescription(
-          `No commands found in the **${selectedCategory}** category.`,
-        );
-      } else {
-        embed.setTitle(`📚 Help: ${selectedCategory}`);
-        embed.setDescription(
-          filteredCommands
-            .map(cmd => `\`/${cmd.name}\` — ${cmd.description}`)
-            .join("\n"),
-        );
-      }
-    } else {
-      embed.setDescription(
-        "Use `/help <category>` to view commands in a specific category.",
-      );
+      if (commandSubCommands.size > 0) {
+        // List each subcommand individually
+        for (const [__, subCommand] of commandSubCommands) {
+          let description = "No description provided.";
 
-      for (const category of Object.values(ECategory)) {
-        const categoryCommands = commands.filter(
-          cmd => cmd.category === category,
-        );
-        if (categoryCommands.size > 0) {
-          embed.addFields({
-            name: `${category} [${categoryCommands.size}]`,
-            value: categoryCommands.map(cmd => `\`/${cmd.name}\``).join(", "),
-            inline: false,
-          });
+          // Helper to find the subcommand's description from the parent command's options
+          const findSubDescription = (options: any[]): string | null => {
+            for (const opt of options) {
+              // Direct subcommand match
+              if (
+                opt.type === ApplicationCommandOptionType.Subcommand &&
+                opt.name === subCommand.name
+              ) {
+                return opt.description;
+              }
+              // If it's a group and matches the subcommand's group, search inside it
+              if (
+                opt.type === ApplicationCommandOptionType.SubcommandGroup &&
+                opt.name === subCommand.subCommandGroup
+              ) {
+                return findSubDescription(opt.options || []);
+              }
+            }
+            return null;
+          };
+
+          description = findSubDescription(command.options) || description;
+
+          const cmdPath = subCommand.subCommandGroup
+            ? `${command.name} ${subCommand.subCommandGroup} ${subCommand.name}`
+            : `${command.name} ${subCommand.name}`;
+
+          helpLines.push(`\`${cmdPath}\` — ${description}`);
         }
+      } else {
+        // Regular command without subcommands
+        helpLines.push(`\`${command.name}\` — ${command.description}`);
       }
     }
+
+    // Sort alphabetically for better UX
+    helpLines.sort((a, b) => a.localeCompare(b));
+
+    embed.setDescription(
+      helpLines.join("\n") || `No commands available for **${type}** mode.`,
+    );
 
     if (context.interaction) {
       await context.interaction.reply({ embeds: [embed] });
