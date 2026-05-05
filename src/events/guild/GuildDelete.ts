@@ -1,7 +1,7 @@
 import { Events, Guild } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
-import GuildConfigSchema from "../../base/schema/GuildConfig";
+import GuildConfigModel from "../../base/models/GuildConfig";
 import logger from "../../lib/logger";
 
 export default class GuildDelete extends Event {
@@ -15,7 +15,7 @@ export default class GuildDelete extends Event {
 
   async Execute(guild: Guild): Promise<void> {
     try {
-      await GuildConfigSchema.findOneAndDelete({
+      await GuildConfigModel.findOneAndDelete({
         guildId: guild.id,
       });
       logger.info({ event: "guild_leave", guildId: guild.id }, `Left guild ${guild.name} (${guild.id})`);

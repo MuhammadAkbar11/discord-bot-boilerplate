@@ -1,5 +1,4 @@
 import {
-  ChatInputCommandInteraction,
   CacheType,
   AutocompleteInteraction,
   ApplicationCommandOptionData,
@@ -8,6 +7,10 @@ import ECategory from "../enums/ECategory";
 import ICommand from "../interfaces/ICommand";
 import CustomClient from "./CustomClient";
 import ICommandOptions from "../interfaces/ICommandOptions";
+import {
+  ICommandExecutionContext,
+  ICommandSupports,
+} from "../interfaces/ICommandExecutionContext";
 
 export default class Command implements ICommand {
   client: CustomClient;
@@ -20,6 +23,7 @@ export default class Command implements ICommand {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
+  supports: ICommandSupports;
 
   constructor(client: CustomClient, options: ICommandOptions) {
     this.client = client;
@@ -32,11 +36,10 @@ export default class Command implements ICommand {
     this.dm_permission = options.dm_permission;
     this.cooldown = options.cooldown;
     this.dev = options.dev;
+    this.supports = options.supports ?? { slash: true, prefix: true };
   }
 
-  async Execute(
-    interaction: ChatInputCommandInteraction<CacheType>,
-  ): Promise<void> {
+  async Execute(context: ICommandExecutionContext): Promise<void> {
     // throw new Error("Method not implemented.");
   }
   AutoComplete(interaction: AutocompleteInteraction<CacheType>): void {

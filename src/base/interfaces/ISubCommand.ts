@@ -1,5 +1,5 @@
-import { ChatInputCommandInteraction } from "discord.js";
 import CustomClient from "../classes/CustomClient";
+import { ICommandExecutionContext } from "./ICommandExecutionContext";
 
 export default interface ISubCommand {
   client: CustomClient;
@@ -7,5 +7,5 @@ export default interface ISubCommand {
   commandName: string;
   subCommandGroup?: string;
 
-  Execute(interaction: ChatInputCommandInteraction): Promise<void>;
+  Execute(context: ICommandExecutionContext): Promise<void>;
 }

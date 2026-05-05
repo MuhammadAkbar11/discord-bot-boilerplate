@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionData } from "discord.js";
 import ECategory from "../enums/ECategory";
+import { ICommandSupports } from "./ICommandExecutionContext";
 
 export default interface ICommandOptions {
   name: string;
@@ -11,4 +12,5 @@ export default interface ICommandOptions {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
+  supports?: ICommandSupports;
 }

@@ -1,7 +1,7 @@
 import { EmbedBuilder, Events, Guild } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
-import GuildConfigSchema from "../../base/schema/GuildConfig";
+import GuildConfigModel from "../../base/models/GuildConfig";
 import logger from "../../lib/logger";
 
 export default class GuildCreate extends Event {
@@ -15,12 +15,12 @@ export default class GuildCreate extends Event {
 
   async Execute(guild: Guild): Promise<void> {
     try {
-      const isGuildExisted = await GuildConfigSchema.exists({
+      const isGuildExisted = await GuildConfigModel.exists({
         guildId: guild.id,
       });
 
       if (!isGuildExisted) {
-        await GuildConfigSchema.create({
+        await GuildConfigModel.create({
           guildId: guild.id,
         });
       }

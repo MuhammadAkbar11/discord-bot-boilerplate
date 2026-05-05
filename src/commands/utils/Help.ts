@@ -1,12 +1,12 @@
 import {
   ApplicationCommandOptionType,
-  ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
+import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
 
 export default class Help extends Command {
   constructor(client: CustomClient) {
@@ -30,18 +30,30 @@ export default class Help extends Command {
       dm_permission: true,
       cooldown: 5,
       dev: false,
+      supports: {
+        slash: true,
+        prefix: true,
+      },
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    const selectedCategory = interaction.options.getString("category");
+  async Execute(context: ICommandExecutionContext): Promise<void> {
+    const rawCategory = context.interaction
+      ? context.interaction.options.getString("category")
+      : context.args[0];
+    const selectedCategory = rawCategory
+      ? Object.values(ECategory).find(
+          category => category.toLowerCase() === rawCategory.toLowerCase(),
+        )
+      : null;
+    const user = context.interaction?.user ?? context.message!.author;
     const embed = new EmbedBuilder()
       .setColor("Blue")
       .setTitle("📚 Bot Help Menu")
       .setThumbnail(this.client.user?.displayAvatarURL() || null)
       .setFooter({
-        text: `Requested by ${interaction.user.tag}`,
-        iconURL: interaction.user.displayAvatarURL(),
+        text: `Requested by ${user.tag}`,
+        iconURL: user.displayAvatarURL(),
       })
       .setTimestamp();
 
@@ -83,6 +95,10 @@ export default class Help extends Command {
       }
     }
 
-    await interaction.reply({ embeds: [embed] });
+    if (context.interaction) {
+      await context.interaction.reply({ embeds: [embed] });
+    } else {
+      await context.message!.reply({ embeds: [embed] });
+    }
   }
 }

@@ -24,9 +24,11 @@ export default class Ready extends Event {
     const clientId = this.client.developmentMode
       ? this.client.config.devDiscordClientId
       : this.client.config.discordClientId;
-    const commands: object[] = this.GetJson(this.client.commands);
+    const commands: object[] = this.GetJson(
+      this.client.commands.filter(cmd => cmd.supports.slash),
+    );
     const productionCommands = this.GetJson(
-      this.client.commands.filter(cmd => !cmd.dev),
+      this.client.commands.filter(cmd => !cmd.dev && cmd.supports.slash),
     );
     const rest = new REST().setToken(
       this.client.developmentMode

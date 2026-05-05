@@ -1,10 +1,13 @@
 import {
   ApplicationCommandOptionData,
   AutocompleteInteraction,
-  ChatInputCommandInteraction,
 } from "discord.js";
 import CustomClient from "../classes/CustomClient";
 import ECategory from "../enums/ECategory";
+import {
+  ICommandExecutionContext,
+  ICommandSupports,
+} from "./ICommandExecutionContext";
 
 export default interface ICommand {
   client: CustomClient;
@@ -17,6 +20,7 @@ export default interface ICommand {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
-  Execute(interaction: ChatInputCommandInteraction): Promise<void>;
+  supports: ICommandSupports;
+  Execute(context: ICommandExecutionContext): Promise<void>;
   AutoComplete(interaction: AutocompleteInteraction): void;
 }

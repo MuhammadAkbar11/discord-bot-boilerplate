@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
+export const DEFAULT_PREFIX = "y!";
+
 interface IGuildConfig {
   guildId: string;
+  prefix: string;
   logs: {
     moderation: {
       enabled: boolean;
@@ -16,6 +19,10 @@ const guildConfigSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    prefix: {
+      type: String,
+      default: DEFAULT_PREFIX,
+    },
     logs: {
       moderation: {
         enabled: Boolean,
@@ -28,10 +35,10 @@ const guildConfigSchema = new mongoose.Schema(
   },
 );
 
-const GuildConfigSchema = mongoose.model<IGuildConfig>(
+const GuildConfigModel = mongoose.model<IGuildConfig>(
   "GuildConfig",
   guildConfigSchema,
   "guildConfig",
 );
 
-export default GuildConfigSchema;
+export default GuildConfigModel;

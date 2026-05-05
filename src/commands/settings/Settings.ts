@@ -1,7 +1,8 @@
-import { ApplicationCommandOptionType, ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
+import { ApplicationCommandOptionType, PermissionsBitField } from "discord.js";
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
+import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
 
 export default class Settings extends Command {
   constructor(client: CustomClient) {
@@ -14,6 +15,10 @@ export default class Settings extends Command {
       dm_permission: false,
       cooldown: 3,
       dev: true,
+      supports: {
+        slash: true,
+        prefix: true,
+      },
       options: [
         {
           name: "language",
@@ -45,10 +50,15 @@ export default class Settings extends Command {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
+  async Execute(context: ICommandExecutionContext): Promise<void> {
     // If a subcommand is executed, the CommandHandler will automatically
     // route it to the respective SubCommand class's Execute method.
     // This fallback runs if the user somehow executes the base command directly.
-    await interaction.reply({ content: "Please select a valid setting to manage." });
+    const response = "Please select a valid setting to manage.";
+    if (context.interaction) {
+      await context.interaction.reply({ content: response });
+    } else {
+      await context.message!.reply(response);
+    }
   }
 }

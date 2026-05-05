@@ -1,7 +1,7 @@
-import { ChatInputCommandInteraction, CacheType } from "discord.js";
 import ISubCommand from "../interfaces/ISubCommand";
 import CustomClient from "./CustomClient";
 import ISubCommandOptions from "../interfaces/ISubCommandOptions";
+import { ICommandExecutionContext } from "../interfaces/ICommandExecutionContext";
 
 export default class SubCommand implements ISubCommand {
   client: CustomClient;
@@ -15,7 +15,5 @@ export default class SubCommand implements ISubCommand {
     this.subCommandGroup = options.subCommandGroup;
   }
 
-  async Execute(
-    interaction: ChatInputCommandInteraction<CacheType>,
-  ): Promise<void> {}
+  async Execute(context: ICommandExecutionContext): Promise<void> {}
 }
