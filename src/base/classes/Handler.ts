@@ -39,7 +39,13 @@ export default class Handler implements IHandler {
             return logger.error({ event: "event_load_error", file: path.basename(file) }, "Event is missing a name.");
           }
 
-          const execute = (...args: unknown[]) => event.Execute(...args);
+          const execute = (...args: unknown[]) =>
+            Promise.resolve(event.Execute(...args)).catch(error => {
+              logger.error(
+                { event: "event_execution_error", eventName: event.name, error },
+                `Unhandled error in event: ${event.name}`,
+              );
+            });
 
           if (event.once) this.client?.once(event.name as string, execute);
           else this.client.on(event.name as string, execute);

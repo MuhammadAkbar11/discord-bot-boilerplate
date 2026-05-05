@@ -10,7 +10,7 @@ export default class Timezone extends SubCommand {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction) {
+  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
     const zone = interaction.options.getString("zone", true);
     
     // Example logic to update timezone in a database would go here

@@ -44,7 +44,7 @@ export default class Settings extends Command {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction) {
+  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
     // If a subcommand is executed, the CommandHandler will automatically
     // route it to the respective SubCommand class's Execute method.
     // This fallback runs if the user somehow executes the base command directly.

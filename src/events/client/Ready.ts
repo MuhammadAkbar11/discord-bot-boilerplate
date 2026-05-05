@@ -14,7 +14,12 @@ export default class Ready extends Event {
   }
 
   async Execute() {
-    logger.info({ event: "ready", user: this.client?.user?.tag }, `${this.client?.user?.tag} is now ready`);
+    logger.info(
+      { event: "ready", user: this.client?.user?.tag },
+      `${this.client?.user?.tag} is now ready`,
+    );
+
+    this.LogLoadedCommands();
 
     const clientId = this.client.developmentMode
       ? this.client.config.devDiscordClientId
@@ -28,16 +33,20 @@ export default class Ready extends Event {
         ? this.client.config.devToken
         : this.client.config.token,
     );
+
     if (!this.client.developmentMode) {
       const globalCommands = (await rest.put(
         Routes.applicationCommands(`${clientId}`),
-        {
-          body: productionCommands,
-        },
+        { body: productionCommands },
       )) as unknown[];
+
       logger.info(
-        { event: "commands_registered_global", count: globalCommands.length },
-        `Successfully loaded ${globalCommands.length} global application (/) commands.`,
+        {
+          event: "commands_registered_global",
+          count: globalCommands.length,
+          names: this.client.commands.filter(c => !c.dev).map(c => c.name),
+        },
+        `Registered ${globalCommands.length} global application (/) commands.`,
       );
     } else {
       const devCommands = (await rest.put(
@@ -45,36 +54,58 @@ export default class Ready extends Event {
           `${this.client.config.devDiscordClientId}`,
           `${this.client.config.devGuildId}`,
         ),
-        {
-          body: commands,
-        },
+        { body: commands },
       )) as unknown[];
 
       logger.info(
-        { event: "commands_registered_guild", count: devCommands.length, guildId: this.client.config.devGuildId },
-        `Successfully loaded ${devCommands.length} guild-specific application (/) commands.`,
+        {
+          event: "commands_registered_guild",
+          count: devCommands.length,
+          guildId: this.client.config.devGuildId,
+          names: this.client.commands.map(c => c.name),
+        },
+        `Registered ${devCommands.length} guild application (/) commands.`,
       );
     }
   }
 
-  private GetJson(commands: Collection<string, Command>): object[] {
-    const data: object[] = [];
+  /**
+   * Logs a detailed summary of all loaded commands and their subcommands.
+   */
+  private LogLoadedCommands(): void {
+    const subCommandSummary: Record<string, string[]> = {};
 
-    commands.toJSON().forEach(command => {
-      const cmd = command;
-
-      data.push({
-        name: cmd.name,
-        description: cmd.description,
-        options: cmd.options,
-        category: cmd.category,
-        cooldown: cmd.cooldown,
-        default_member_permissions: +cmd.default_member_permissions.toString(),
-        dm_permission: cmd.dm_permission,
-        dev: cmd.dev,
-      });
+    this.client.subCommands.forEach(subCmd => {
+      const parent = subCmd.commandName;
+      if (!subCommandSummary[parent]) subCommandSummary[parent] = [];
+      const label = subCmd.subCommandGroup
+        ? `${subCmd.subCommandGroup} > ${subCmd.name}`
+        : subCmd.name;
+      subCommandSummary[parent].push(label);
     });
 
-    return data;
+    const total = this.client.commands.size + this.client.subCommands.size;
+
+    const lines: string[] = [`Loaded (${total}) command(s).`];
+
+    this.client.commands.forEach(cmd => {
+      lines.push(` - ${cmd.name}`);
+      const subs = subCommandSummary[cmd.name];
+      if (subs) {
+        subs.forEach(s => lines.push(`       - ${s}`));
+      }
+    });
+
+    logger.info({ event: "commands_loaded", total }, lines.join("\n"));
+  }
+
+  private GetJson(commands: Collection<string, Command>): object[] {
+    return commands.toJSON().map(cmd => ({
+      name: cmd.name,
+      description: cmd.description,
+      options: cmd.options,
+      default_member_permissions: +cmd.default_member_permissions.toString(),
+      dm_permission: cmd.dm_permission,
+    }));
   }
 }

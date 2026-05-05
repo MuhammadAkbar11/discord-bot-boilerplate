@@ -32,7 +32,9 @@ export default class Command implements ICommand {
     this.dev = options.dev;
   }
 
-  Execute(interaction: ChatInputCommandInteraction<CacheType>): void {
+  async Execute(
+    interaction: ChatInputCommandInteraction<CacheType>,
+  ): Promise<void> {
     // throw new Error("Method not implemented.");
   }
   AutoComplete(interaction: AutocompleteInteraction<CacheType>): void {

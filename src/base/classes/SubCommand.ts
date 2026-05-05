@@ -15,5 +15,7 @@ export default class SubCommand implements ISubCommand {
     this.subCommandGroup = options.subCommandGroup;
   }
 
-  Execute(interaction: ChatInputCommandInteraction<CacheType>): void {}
+  async Execute(
+    interaction: ChatInputCommandInteraction<CacheType>,
+  ): Promise<void> {}
 }

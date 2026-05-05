@@ -16,6 +16,6 @@ export default interface ICommand {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
-  Execute(interaction: ChatInputCommandInteraction): void;
+  Execute(interaction: ChatInputCommandInteraction): Promise<void>;
   AutoComplete(interaction: AutocompleteInteraction): void;
 }

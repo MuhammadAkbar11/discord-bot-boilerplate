@@ -19,53 +19,45 @@ export default class CommandHandler extends Event {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction): Promise<any> {
+  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
-    const command: Command = await this.client.commands?.get(
-      interaction?.commandName,
-    )!;
+    const command: Command = this.client.commands?.get(interaction.commandName)!;
 
-    if (!command)
-      return (
-        (await interaction.reply({
-          content: "This Command does not exist!",
-          flags: MessageFlags.Ephemeral,
-        })) && this.client.commands.delete(interaction.commandName)
-      );
+    if (!command) {
+      await interaction.reply({
+        content: "This command does not exist!",
+        flags: MessageFlags.Ephemeral,
+      });
+      this.client.commands.delete(interaction.commandName);
+      return;
+    }
 
+    // --- Cooldown check ---
     const { cooldowns } = this.client;
-    if (!cooldowns.has(command.name))
-      cooldowns.set(command.name, new Collection());
+    if (!cooldowns.has(command.name)) cooldowns.set(command.name, new Collection());
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name)!;
     const cooldownAmount = (command.cooldown || 3) * 1000;
 
-    if (
-      timestamps.has(interaction.user.id) &&
-      now < (timestamps.get(interaction.user.id) || 0) + cooldownAmount
-    ) {
-      return interaction.reply({
+    if (timestamps.has(interaction.user.id) && now < (timestamps.get(interaction.user.id) || 0) + cooldownAmount) {
+      const remaining = (((timestamps.get(interaction.user.id) || 0) + cooldownAmount - now) / 1000).toFixed();
+      await interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription(
-              `❌ Please wait another \'${(
-                ((timestamps.get(interaction.user.id) || 0) +
-                  cooldownAmount -
-                  now) /
-                1000
-              ).toFixed()}\' seconds to run this command`,
-            ),
+            .setDescription(`❌ Please wait another \`${remaining}\` seconds to run this command.`),
         ],
         flags: MessageFlags.Ephemeral,
       });
+      return;
     }
 
     timestamps.set(interaction.user.id, now);
     setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
+    // --- Execution ---
     logger.info(
       {
         event: "command_executed",
@@ -80,19 +72,31 @@ export default class CommandHandler extends Event {
     try {
       const subCommandGroup = interaction.options.getSubcommandGroup(false);
       const subCommandName = interaction.options.getSubcommand(false);
-      const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
-      const subCommandKey = `${interaction.commandName}.${groupPrefix}${subCommandName || ""}`;
 
-      return (
-        this.client.subCommands.get(subCommandKey)?.Execute(interaction) ||
-        command.Execute(interaction)
-      );
+      if (subCommandName) {
+        const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
+        const subCommandKey = `${interaction.commandName}.${groupPrefix}${subCommandName}`;
+        const subCommand = this.client.subCommands.get(subCommandKey);
+
+        if (subCommand) {
+          await subCommand.Execute(interaction);
+          return;
+        }
+      }
+
+      await command.Execute(interaction);
     } catch (error) {
       logger.error(
         { event: "command_error", command: command.name, error },
         `Error executing command /${command.name}`,
       );
-      return;
+
+      const errorMessage = "❌ An error occurred while executing this command.";
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
+      } else {
+        await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
+      }
     }
   }
 }

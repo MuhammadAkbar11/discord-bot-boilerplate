@@ -7,5 +7,5 @@ export default interface ISubCommand {
   commandName: string;
   subCommandGroup?: string;
 
-  Execute(interaction: ChatInputCommandInteraction): void;
+  Execute(interaction: ChatInputCommandInteraction): Promise<void>;
 }

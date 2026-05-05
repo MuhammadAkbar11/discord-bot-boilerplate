@@ -10,7 +10,7 @@ export default class Language extends SubCommand {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction) {
+  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
     const locale = interaction.options.getString("locale", true);
     
     // Example logic to update language in a database would go here
