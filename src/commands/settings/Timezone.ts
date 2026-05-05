@@ -16,7 +16,7 @@ export default class Timezone extends SubCommand {
 
   async Execute(context: ICommandExecutionContext): Promise<void> {
     const zone = context.interaction
-      ? context.interaction.options.getString(this.name, true)
+      ? context.interaction.options.getString("zone", true)
       : context.args[0];
 
     if (!zone) {
