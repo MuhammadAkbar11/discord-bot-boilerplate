@@ -8,6 +8,7 @@ import {
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
 import Command from "../../base/classes/Command";
+import logger from "../../lib/logger";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -65,6 +66,14 @@ export default class CommandHandler extends Event {
     timestamps.set(interaction.user.id, now);
     setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
+    logger.info({
+      event: "command_executed",
+      command: command.name,
+      user: interaction.user.tag,
+      userId: interaction.user.id,
+      guildId: interaction.guildId,
+    }, `User ${interaction.user.tag} executed command /${command.name}`);
+
     try {
       const subCommandGroup = interaction.options.getSubcommandGroup(false);
       const subCommand = `${interaction.commandName}${
@@ -76,7 +85,7 @@ export default class CommandHandler extends Event {
         command.Execute(interaction)
       );
     } catch (error) {
-      console.error(error);
+      logger.error({ event: "command_error", command: command.name, error }, `Error executing command /${command.name}`);
       return;
     }
   }

@@ -6,6 +6,7 @@ import CustomClient from "./CustomClient";
 import Event from "./Events";
 import Command from "./Command";
 import SubCommand from "./SubCommand";
+import logger from "../../lib/logger";
 
 export default class Handler implements IHandler {
   eventFilepath: string;
@@ -35,7 +36,7 @@ export default class Handler implements IHandler {
           const event: Event = new (await import(file)).default(this.client);
 
           if (!event?.name) {
-            return console.error(`❌ Event in ${path.basename(file)} is missing a name.`);
+            return logger.error({ event: "event_load_error", file: path.basename(file) }, "Event is missing a name.");
           }
 
           const execute = (...args: any) => event.Execute(...args);
@@ -49,8 +50,7 @@ export default class Handler implements IHandler {
         }),
       );
     } catch (error) {
-      console.error("❌ Error loading events:");
-      console.error(error);
+      logger.error({ event: "events_load_failed", error }, "Error loading events");
     }
   }
 
@@ -67,7 +67,7 @@ export default class Handler implements IHandler {
           );
 
           if (!command?.name) {
-            return console.error(`❌ Command in ${path.basename(file)} is missing a name.`);
+            return logger.error({ event: "command_load_error", file: path.basename(file) }, "Command is missing a name.");
           }
 
           if (path.basename(file).split(".").length > 2) {
@@ -80,8 +80,7 @@ export default class Handler implements IHandler {
         }),
       );
     } catch (error) {
-      console.error("❌ Error loading commands:");
-      console.error(error);
+      logger.error({ event: "commands_load_failed", error }, "Error loading commands");
     }
   }
 }

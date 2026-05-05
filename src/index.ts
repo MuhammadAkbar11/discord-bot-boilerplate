@@ -1,7 +1,8 @@
 import CustomClient from "./base/classes/CustomClient";
 import { ENV_MODE } from "./configs/varsConfig";
+import logger from "./lib/logger";
 
-console.log(`MODE : ${ENV_MODE}`);
+logger.info({ event: "startup", mode: ENV_MODE }, `Application starting in ${ENV_MODE} mode`);
 
 const client = new CustomClient();
 client.Init();

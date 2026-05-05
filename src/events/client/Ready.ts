@@ -2,6 +2,7 @@ import { Collection, Events, REST, Routes } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
 import Command from "../../base/classes/Command";
+import logger from "../../lib/logger";
 
 export default class Ready extends Event {
   constructor(client: CustomClient) {
@@ -13,7 +14,7 @@ export default class Ready extends Event {
   }
 
   async Execute() {
-    console.log(`${this.client?.user?.tag} is now ready`);
+    logger.info({ event: "ready", user: this.client?.user?.tag }, `${this.client?.user?.tag} is now ready`);
 
     const clientId = this.client.developmentMode
       ? this.client.config.devDiscordClientId
@@ -34,7 +35,8 @@ export default class Ready extends Event {
           body: productionCommands,
         },
       );
-      console.log(
+      logger.info(
+        { event: "commands_registered_global", count: globalCommands.length },
         `Successfully loaded ${globalCommands.length} global application (/) commands.`,
       );
     } else {
@@ -48,7 +50,8 @@ export default class Ready extends Event {
         },
       );
 
-      console.log(
+      logger.info(
+        { event: "commands_registered_guild", count: devCommands.length, guildId: this.client.config.devGuildId },
         `Successfully loaded ${devCommands.length} guild-specific application (/) commands.`,
       );
     }

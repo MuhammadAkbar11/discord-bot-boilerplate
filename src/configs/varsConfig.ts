@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
+import logger from "../lib/logger";
 
 type ModeTypes = "development" | "production" | "testing";
 
@@ -47,12 +48,14 @@ const validateEnv = () => {
   }
 
   if (missing.length > 0) {
-    console.error("\n❌ [Config Error] Missing environment variables:");
-    missing.forEach((key) => console.error(`   - ${key}`));
-    console.error("\n💡 Action Required:");
-    console.error("   1. Check if your .env file exists in the root directory.");
-    console.error("   2. Ensure all variables listed above are defined and not empty.");
-    console.error("   3. Refer to .env.example for the expected format.\n");
+    logger.error(
+      {
+        event: "config_error",
+        missing,
+        help: "Check your .env file or .env.example",
+      },
+      "Missing required environment variables"
+    );
     process.exit(1);
   }
 };

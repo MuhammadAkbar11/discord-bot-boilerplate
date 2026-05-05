@@ -2,6 +2,7 @@ import { EmbedBuilder, Events, Guild } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
 import GuildConfigSchema from "../../base/schema/GuildConfig";
+import logger from "../../lib/logger";
 
 export default class GuildCreate extends Event {
   constructor(client: CustomClient) {
@@ -24,7 +25,7 @@ export default class GuildCreate extends Event {
         });
       }
     } catch (error) {
-      console.error(error);
+      logger.error({ event: "guild_create_db_error", guildId: guild.id, error }, "Error updating guild config on join");
       return;
     }
 
@@ -56,7 +57,7 @@ export default class GuildCreate extends Event {
       });
 
     owner.send({ embeds: [Embed] }).catch(error => {
-      console.error(error);
+      logger.error({ event: "guild_create_dm_error", guildId: guild.id, ownerId: owner.id, error }, "Error sending welcome DM to guild owner");
       return;
     });
   }
