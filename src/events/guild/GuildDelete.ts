@@ -14,17 +14,11 @@ export default class GuildDelete extends Event {
 
   async Execute(guild: Guild): Promise<void> {
     try {
-      const guildConfig = await GuildConfigSchema.findOneAndDelete({
+      await GuildConfigSchema.findOneAndDelete({
         guildId: guild.id,
       });
-
-      if (guildConfig) {
-        await GuildConfigSchema.deleteOne({ guildId: guild.id });
-        return;
-      }
     } catch (error) {
-      console.log(error);
-      return;
+      console.error(error);
     }
   }
 }

@@ -2,8 +2,10 @@ import { Client, Collection, GatewayIntentBits } from "discord.js";
 import ICustomClient from "../interfaces/ICustomClient";
 import IConfig from "../interfaces/IConfig";
 import {
+  DEV_DISCORD_CLIENT_ID,
+  DEV_DISCORD_TOKEN,
+  DEV_GUILD_ID,
   DISCORD_CLIENT_ID,
-  DISCORD_GUILD_ID,
   DISCORD_TOKEN,
   ENV_MODE,
   MONGO_URL,
@@ -11,7 +13,7 @@ import {
 import Handler from "./Handler";
 import Command from "./Command";
 import SubCommand from "./SubCommand";
-import { connect } from "mongoose";
+import { connect, disconnect } from "mongoose";
 
 export default class CustomClient extends Client implements ICustomClient {
   handler: Handler;
@@ -34,9 +36,9 @@ export default class CustomClient extends Client implements ICustomClient {
     this.config = {
       token: DISCORD_TOKEN,
       discordClientId: DISCORD_CLIENT_ID,
-      devToken: DISCORD_TOKEN,
-      devDiscordClientId: DISCORD_CLIENT_ID,
-      devGuildId: DISCORD_GUILD_ID,
+      devToken: DEV_DISCORD_TOKEN || DISCORD_TOKEN,
+      devDiscordClientId: DEV_DISCORD_CLIENT_ID || DISCORD_CLIENT_ID,
+      devGuildId: DEV_GUILD_ID,
       databaseUrl: MONGO_URL,
     };
     this.handler = new Handler(this);
@@ -47,27 +49,36 @@ export default class CustomClient extends Client implements ICustomClient {
   }
 
   async Init(): Promise<void> {
-    console.log(`Starting the bot in ${ENV_MODE} mode`);
+    console.log(`Starting the bot in ${ENV_MODE} mode...`);
     const token = this.developmentMode
       ? this.config.devToken
       : this.config.token;
-    try {
-      await this.LoadHander();
 
-      const login = await this.login(token);
-      console.log("Logged in");
-      console.log("connect to database....");
+    try {
+      await this.LoadHandler();
+
+      await this.login(token);
+      console.log("✅ Successfully logged in to Discord.");
 
       await connect(this.config.databaseUrl);
-      console.log("successed to connect database");
+      console.log("✅ Successfully connected to MongoDB.");
     } catch (error) {
-      console.log(error);
-      throw new Error("Error ");
+      console.error("❌ Failed to initialize the bot:");
+      console.error(error);
+      process.exit(1);
     }
   }
 
-  async LoadHander(): Promise<void> {
+  async LoadHandler(): Promise<void> {
     await this.handler.LoadEvents();
     await this.handler.LoadCommands();
+  }
+
+  async Shutdown(): Promise<void> {
+    console.log("\n🛑 Graceful shutdown initiated...");
+    this.destroy();
+    await disconnect();
+    console.log("👋 Disconnected from Discord and MongoDB. Goodbye!");
+    process.exit(0);
   }
 }

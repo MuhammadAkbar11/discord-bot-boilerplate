@@ -10,5 +10,6 @@ export default interface ICustomClient {
   cooldowns: Collection<string, Collection<string, number>>;
   developmentMode: boolean;
   Init(): void;
-  LoadHander(): void;
+  LoadHandler(): void;
+  Shutdown(): void;
 }

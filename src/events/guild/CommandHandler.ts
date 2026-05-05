@@ -76,7 +76,7 @@ export default class CommandHandler extends Event {
         command.Execute(interaction)
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return;
     }
   }

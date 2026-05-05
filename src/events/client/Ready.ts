@@ -3,14 +3,6 @@ import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
 import Command from "../../base/classes/Command";
 
-function ParsingResult(obj: any) {
-  const stringifyObj = JSON.stringify(obj, (_, v) =>
-    typeof v === "bigint" ? +v.toString() : v,
-  );
-
-  return JSON.parse(stringifyObj);
-}
-
 export default class Ready extends Event {
   constructor(client: CustomClient) {
     super(client, {
@@ -20,7 +12,7 @@ export default class Ready extends Event {
     });
   }
 
-  async Execute(...args: any) {
+  async Execute() {
     console.log(`${this.client?.user?.tag} is now ready`);
 
     const clientId = this.client.developmentMode
@@ -30,7 +22,11 @@ export default class Ready extends Event {
     const productionCommands = this.GetJson(
       this.client.commands.filter(cmd => !cmd.dev),
     );
-    const rest = new REST().setToken(this.client.config.token);
+    const rest = new REST().setToken(
+      this.client.developmentMode
+        ? this.client.config.devToken
+        : this.client.config.token,
+    );
     if (!this.client.developmentMode) {
       const globalCommands: any = await rest.put(
         Routes.applicationCommands(`${clientId}`),
@@ -50,11 +46,10 @@ export default class Ready extends Event {
         {
           body: commands,
         },
-        // { body: commands as unknown }
       );
 
       console.log(
-        `Successfully loaded ${devCommands.length} applications (/) commands.`,
+        `Successfully loaded ${devCommands.length} guild-specific application (/) commands.`,
       );
     }
   }
@@ -65,19 +60,9 @@ export default class Ready extends Event {
     commands.toJSON().forEach(command => {
       const cmd = command;
 
-      const commandOptions = {
-        ...cmd.options,
-        default_member_permissions:
-          +cmd.options.default_member_permissions.toString(),
-      };
-
-      // if (commandOptions?.options?.length === 0) {
-      delete commandOptions.options;
-      // }
       data.push({
         name: cmd.name,
         description: cmd.description,
-        // options: commandOptions,
         options: cmd.options?.options,
         category: cmd.category,
         cooldown: cmd.cooldown,
@@ -86,7 +71,7 @@ export default class Ready extends Event {
         dev: cmd.dev,
       });
     });
-    // console.log(data);
+
     return data;
   }
 }

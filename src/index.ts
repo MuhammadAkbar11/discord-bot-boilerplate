@@ -1,8 +1,11 @@
 import CustomClient from "./base/classes/CustomClient";
-import * as envConfig from "./configs/varsConfig";
+import { ENV_MODE } from "./configs/varsConfig";
 
-envConfig.dotenvConfig;
+console.log(`MODE : ${ENV_MODE}`);
 
-console.log(`MODE : ${envConfig.ENV_MODE}`);
+const client = new CustomClient();
+client.Init();
 
-new CustomClient().Init();
+["SIGINT", "SIGTERM"].forEach((signal) => {
+  process.on(signal, () => client.Shutdown());
+});

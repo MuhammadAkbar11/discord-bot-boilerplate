@@ -6,7 +6,7 @@ import {
 import ECategory from "../enums/ECategory";
 import ICommand from "../interfaces/ICommand";
 import CustomClient from "./CustomClient";
-import ICommanddOptions from "../interfaces/ICommandsOptions";
+import ICommandOptions from "../interfaces/ICommandOptions";
 
 export default class Command implements ICommand {
   client: CustomClient;
@@ -19,7 +19,7 @@ export default class Command implements ICommand {
   cooldown: number;
   dev: boolean;
 
-  constructor(client: CustomClient, options: ICommanddOptions) {
+  constructor(client: CustomClient, options: ICommandOptions) {
     this.client = client;
     this.options = options;
     this.name = options.name;

@@ -13,14 +13,19 @@ export default class Ping extends Command {
       default_member_permissions: PermissionsBitField.Flags.SendMessages,
       dm_permission: false,
       cooldown: 3,
-      dev: false
+      dev: true,
     });
   }
 
   async Execute(interaction: ChatInputCommandInteraction) {
-    const sent = await interaction.reply({ content: 'Pinging...', fetchReply: true });
+    const sent = await interaction.reply({
+      content: "Pinging...",
+      fetchReply: true,
+    });
     const latency = sent.createdTimestamp - interaction.createdTimestamp;
 
-    await interaction.editReply(`Pong! 🏓\nBot Latency: \`${latency}ms\`\nAPI Latency: \`${Math.round(this.client.ws.ping)}ms\``);
+    await interaction.editReply(
+      `Pong! 🏓\nBot Latency: \`${latency}ms\`\nAPI Latency: \`${Math.round(this.client.ws.ping)}ms\``,
+    );
   }
 }

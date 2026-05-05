@@ -24,17 +24,15 @@ export default class GuildCreate extends Event {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return;
     }
 
     const owner = await guild.fetchOwner();
     if (!owner) return;
 
-    console.log(this.client?.user);
     const botClient = this.client.user;
     const avatarUrl = botClient?.displayAvatarURL() as string;
-    console.log(avatarUrl);
     const Embed = new EmbedBuilder()
       .setColor("Blue")
       .setDescription(
@@ -58,7 +56,7 @@ export default class GuildCreate extends Event {
       });
 
     owner.send({ embeds: [Embed] }).catch(error => {
-      console.log(error);
+      console.error(error);
       return;
     });
   }
