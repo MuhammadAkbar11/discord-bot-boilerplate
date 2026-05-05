@@ -59,7 +59,9 @@ export default class CommandHandler extends Event {
     client: CustomClient,
     context: ICommandExecutionContext,
   ): Promise<void> {
-    const command: Command | undefined = client.commands?.get(context.commandName);
+    const command: Command | undefined = client.commands?.get(
+      context.commandName,
+    );
 
     if (!command) {
       await CommandHandler.Reply(context, "This command does not exist!");
@@ -77,20 +79,29 @@ export default class CommandHandler extends Event {
 
     // --- Cooldown check ---
     const { cooldowns } = client;
-    if (!cooldowns.has(command.name)) cooldowns.set(command.name, new Collection());
+    if (!cooldowns.has(command.name))
+      cooldowns.set(command.name, new Collection());
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name)!;
     const cooldownAmount = (command.cooldown || 3) * 1000;
     const user = CommandHandler.GetUser(context);
 
-    if (timestamps.has(user.id) && now < (timestamps.get(user.id) || 0) + cooldownAmount) {
-      const remaining = (((timestamps.get(user.id) || 0) + cooldownAmount - now) / 1000).toFixed();
+    if (
+      timestamps.has(user.id) &&
+      now < (timestamps.get(user.id) || 0) + cooldownAmount
+    ) {
+      const remaining = (
+        ((timestamps.get(user.id) || 0) + cooldownAmount - now) /
+        1000
+      ).toFixed();
       await CommandHandler.Reply(context, {
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription(`❌ Please wait another \`${remaining}\` seconds to run this command.`),
+            .setDescription(
+              `❌ Please wait another \`${remaining}\` seconds to run this command.`,
+            ),
         ],
         flags: [MessageFlags.Ephemeral],
       });
@@ -101,8 +112,15 @@ export default class CommandHandler extends Event {
     setTimeout(() => timestamps.delete(user.id), cooldownAmount);
 
     // --- Permission & Role check ---
-    if (context.type === "prefix" && !command.dm_permission && !context.message?.guild) {
-      await CommandHandler.Reply(context, "This command can only be used in a server.");
+    if (
+      context.type === "prefix" &&
+      !command.dm_permission &&
+      !context.message?.guild
+    ) {
+      await CommandHandler.Reply(
+        context,
+        "This command can only be used in a server.",
+      );
       return;
     }
 
@@ -112,22 +130,32 @@ export default class CommandHandler extends Event {
       if (member) {
         // Check Discord Permissions
         if (command.default_member_permissions) {
-          const missingPermissions = member.permissions.missing(command.default_member_permissions);
+          const missingPermissions = member.permissions.missing(
+            command.default_member_permissions,
+          );
           if (missingPermissions.length > 0) {
             const permissionNames = missingPermissions
-              .map((p) => `**${new PermissionsBitField(p).toArray()}**`)
+              .map(p => `**${new PermissionsBitField(p).toArray()}**`)
               .join(", ");
-            
+
             logger.warn(
-              { event: "command_permission_denied", command: command.name, executionType: context.type, user: user.tag, missingPermissions },
-              `User ${user.tag} denied execution of ${CommandHandler.FormatCommandName(context.type, command.name)} due to missing permissions: ${missingPermissions.join(", ")}`
+              {
+                event: "command_permission_denied",
+                command: command.name,
+                executionType: context.type,
+                user: user.tag,
+                missingPermissions,
+              },
+              `User ${user.tag} denied execution of ${CommandHandler.FormatCommandName(context.type, command.name)} due to missing permissions: ${missingPermissions.join(", ")}`,
             );
 
             await CommandHandler.Reply(context, {
               embeds: [
                 new EmbedBuilder()
                   .setColor("Red")
-                  .setDescription(`❌ You need the following permission(s) to use this command: ${permissionNames}`),
+                  .setDescription(
+                    `❌ You need the following permission(s) to use this command: ${permissionNames}`,
+                  ),
               ],
               flags: [MessageFlags.Ephemeral],
             });
@@ -137,23 +165,33 @@ export default class CommandHandler extends Event {
 
         // Check Roles
         if (command.roles.length > 0) {
-          const hasRole = command.roles.some((roleIdOrName) => 
-            member.roles.cache.has(roleIdOrName) || member.roles.cache.some((r) => r.name === roleIdOrName)
+          const hasRole = command.roles.some(
+            roleIdOrName =>
+              member.roles.cache.has(roleIdOrName) ||
+              member.roles.cache.some(r => r.name === roleIdOrName),
           );
 
           if (!hasRole) {
-            const roleNames = command.roles.map((r) => `**${r}**`).join(" or ");
-            
+            const roleNames = command.roles.map(r => `**${r}**`).join(" or ");
+
             logger.warn(
-              { event: "command_role_denied", command: command.name, executionType: context.type, user: user.tag, requiredRoles: command.roles },
-              `User ${user.tag} denied execution of ${CommandHandler.FormatCommandName(context.type, command.name)} due to missing roles.`
+              {
+                event: "command_role_denied",
+                command: command.name,
+                executionType: context.type,
+                user: user.tag,
+                requiredRoles: command.roles,
+              },
+              `User ${user.tag} denied execution of ${CommandHandler.FormatCommandName(context.type, command.name)} due to missing roles.`,
             );
 
             await CommandHandler.Reply(context, {
               embeds: [
                 new EmbedBuilder()
                   .setColor("Red")
-                  .setDescription(`❌ You must have one of the following roles to use this command: ${roleNames}`),
+                  .setDescription(
+                    `⛔ You don't have permissions to use this command`,
+                  ),
               ],
               flags: [MessageFlags.Ephemeral],
             });
@@ -177,7 +215,8 @@ export default class CommandHandler extends Event {
     );
 
     try {
-      const { subCommandGroup, subCommandName } = CommandHandler.GetSubCommand(context);
+      const { subCommandGroup, subCommandName } =
+        CommandHandler.GetSubCommand(context);
 
       if (subCommandName) {
         const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
@@ -185,9 +224,18 @@ export default class CommandHandler extends Event {
         const subCommand = client.subCommands.get(subCommandKey);
 
         if (subCommand) {
+          if (!subCommand.supports[context.type]) {
+            await CommandHandler.Reply(
+              context,
+              `This subcommand does not support ${context.type} execution.`,
+            );
+            return;
+          }
+
           await subCommand.Execute({
             ...context,
-            args: context.type === "prefix" ? context.args.slice(1) : context.args,
+            args:
+              context.type === "prefix" ? context.args.slice(1) : context.args,
           });
           return;
         }
@@ -196,7 +244,12 @@ export default class CommandHandler extends Event {
       await command.Execute(context);
     } catch (error) {
       logger.error(
-        { event: "command_error", command: command.name, executionType: context.type, error },
+        {
+          event: "command_error",
+          command: command.name,
+          executionType: context.type,
+          error,
+        },
         `Error executing command ${CommandHandler.FormatCommandName(context.type, command.name)}`,
       );
 
@@ -228,7 +281,9 @@ export default class CommandHandler extends Event {
     return context.interaction?.user ?? context.message!.author;
   }
 
-  private static GetMember(context: ICommandExecutionContext): GuildMember | null {
+  private static GetMember(
+    context: ICommandExecutionContext,
+  ): GuildMember | null {
     const guild = context.interaction?.guild ?? context.message?.guild;
     const user = CommandHandler.GetUser(context);
     const cachedMember = guild?.members.cache.get(user.id);
@@ -239,7 +294,10 @@ export default class CommandHandler extends Event {
       : null;
   }
 
-  private static FormatCommandName(type: CommandExecutionType, commandName: string): string {
+  private static FormatCommandName(
+    type: CommandExecutionType,
+    commandName: string,
+  ): string {
     return type === "slash" ? `/${commandName}` : `${commandName}`;
   }
 
@@ -248,9 +306,10 @@ export default class CommandHandler extends Event {
     response: string | InteractionReplyOptions,
   ): Promise<void> {
     if (context.interaction) {
-      const payload: InteractionReplyOptions = typeof response === "string"
-        ? { content: response, flags: [MessageFlags.Ephemeral] }
-        : response;
+      const payload: InteractionReplyOptions =
+        typeof response === "string"
+          ? { content: response, flags: [MessageFlags.Ephemeral] }
+          : response;
 
       if (context.interaction.replied || context.interaction.deferred) {
         await context.interaction.followUp(payload);
@@ -269,7 +328,8 @@ export default class CommandHandler extends Event {
           withResponse: _withResponse,
           ephemeral: _ephemeral,
           ...messageResponse
-        } = response as InteractionReplyOptions & MessageReplyOptions & { ephemeral?: boolean };
+        } = response as InteractionReplyOptions &
+          MessageReplyOptions & { ephemeral?: boolean };
         await context.message.reply(messageResponse);
       }
     }

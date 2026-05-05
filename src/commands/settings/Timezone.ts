@@ -7,6 +7,10 @@ export default class Timezone extends SubCommand {
     super(client, {
       name: "timezone",
       commandName: "settings",
+      supports: {
+        slash: true,
+        prefix: true,
+      },
     });
   }
 

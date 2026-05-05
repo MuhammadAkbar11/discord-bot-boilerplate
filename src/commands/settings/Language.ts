@@ -7,6 +7,10 @@ export default class Language extends SubCommand {
     super(client, {
       name: "language",
       commandName: "settings",
+      supports: {
+        slash: true,
+        prefix: true,
+      },
     });
   }
 
