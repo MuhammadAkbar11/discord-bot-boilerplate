@@ -25,7 +25,9 @@ export default class Ping extends Command {
   async Execute(interaction: ChatInputCommandInteraction) {
     try {
       const response = await interaction.reply({
-        embeds: [new EmbedBuilder().setDescription("Pinging...")],
+        embeds: [
+          new EmbedBuilder().setColor("Yellow").setDescription("Pinging..."),
+        ],
         withResponse: true,
       });
 
@@ -35,9 +37,11 @@ export default class Ping extends Command {
 
       await interaction.editReply({
         embeds: [
-          new EmbedBuilder().setDescription(
-            `Pong! 🏓\nBot Latency: \`${latency}ms\`\nAPI Latency: \`${Math.round(this.client.ws.ping)}ms\``,
-          ),
+          new EmbedBuilder()
+            .setColor("Green")
+            .setDescription(
+              `Pong! 🏓\nBot Latency: \`${latency}ms\`\nAPI Latency: \`${Math.round(this.client.ws.ping)}ms\``,
+            ),
         ],
       });
 

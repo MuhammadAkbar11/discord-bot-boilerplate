@@ -1,4 +1,5 @@
 import {
+  ApplicationCommandOptionData,
   AutocompleteInteraction,
   ChatInputCommandInteraction,
 } from "discord.js";
@@ -10,7 +11,7 @@ export default interface ICommand {
   name: string;
   description: string;
   category: ECategory;
-  options: object;
+  options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
   dm_permission: boolean;
   cooldown: number;

@@ -1,10 +1,11 @@
+import { ApplicationCommandOptionData } from "discord.js";
 import ECategory from "../enums/ECategory";
 
-export default interface ICommanddOptions {
+export default interface ICommandOptions {
   name: string;
   description: string;
   category: ECategory;
-  options: object;
+  options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
   dm_permission: boolean;
   cooldown: number;

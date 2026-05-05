@@ -39,12 +39,10 @@ export default class Handler implements IHandler {
             return logger.error({ event: "event_load_error", file: path.basename(file) }, "Event is missing a name.");
           }
 
-          const execute = (...args: any) => event.Execute(...args);
+          const execute = (...args: unknown[]) => event.Execute(...args);
 
-          // @ts-ignore
-          if (event.once) this.client?.once(event.name, execute);
-          // @ts-ignore
-          else this.client.on(event.name, execute);
+          if (event.once) this.client?.once(event.name as string, execute);
+          else this.client.on(event.name as string, execute);
 
           delete require.cache[require.resolve(file)];
         }),

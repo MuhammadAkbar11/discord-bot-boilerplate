@@ -29,18 +29,18 @@ export default class Ready extends Event {
         : this.client.config.token,
     );
     if (!this.client.developmentMode) {
-      const globalCommands: any = await rest.put(
+      const globalCommands = (await rest.put(
         Routes.applicationCommands(`${clientId}`),
         {
           body: productionCommands,
         },
-      );
+      )) as unknown[];
       logger.info(
         { event: "commands_registered_global", count: globalCommands.length },
         `Successfully loaded ${globalCommands.length} global application (/) commands.`,
       );
     } else {
-      const devCommands: any = await rest.put(
+      const devCommands = (await rest.put(
         Routes.applicationGuildCommands(
           `${this.client.config.devDiscordClientId}`,
           `${this.client.config.devGuildId}`,
@@ -48,7 +48,7 @@ export default class Ready extends Event {
         {
           body: commands,
         },
-      );
+      )) as unknown[];
 
       logger.info(
         { event: "commands_registered_guild", count: devCommands.length, guildId: this.client.config.devGuildId },
@@ -66,7 +66,7 @@ export default class Ready extends Event {
       data.push({
         name: cmd.name,
         description: cmd.description,
-        options: cmd.options?.options,
+        options: cmd.options,
         category: cmd.category,
         cooldown: cmd.cooldown,
         default_member_permissions: +cmd.default_member_permissions.toString(),

@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   CacheType,
   AutocompleteInteraction,
+  ApplicationCommandOptionData,
 } from "discord.js";
 import ECategory from "../enums/ECategory";
 import ICommand from "../interfaces/ICommand";
@@ -13,7 +14,7 @@ export default class Command implements ICommand {
   name: string;
   description: string;
   category: ECategory;
-  options: any;
+  options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
   dm_permission: boolean;
   cooldown: number;
@@ -21,7 +22,7 @@ export default class Command implements ICommand {
 
   constructor(client: CustomClient, options: ICommandOptions) {
     this.client = client;
-    this.options = options;
+    this.options = options.options;
     this.name = options.name;
     this.description = options.description;
     this.category = options.category;
