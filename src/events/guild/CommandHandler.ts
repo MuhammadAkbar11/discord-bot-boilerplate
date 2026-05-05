@@ -79,12 +79,12 @@ export default class CommandHandler extends Event {
 
     try {
       const subCommandGroup = interaction.options.getSubcommandGroup(false);
-      const subCommand = `${interaction.commandName}${
-        subCommandGroup ? `${subCommandGroup}` : ""
-      }.${interaction.options.getSubcommand(false) || ""}`;
+      const subCommandName = interaction.options.getSubcommand(false);
+      const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
+      const subCommandKey = `${interaction.commandName}.${groupPrefix}${subCommandName || ""}`;
 
       return (
-        this.client.subCommands.get(subCommand)?.Execute(interaction) ||
+        this.client.subCommands.get(subCommandKey)?.Execute(interaction) ||
         command.Execute(interaction)
       );
     } catch (error) {

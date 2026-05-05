@@ -4,6 +4,8 @@ import CustomClient from "../classes/CustomClient";
 export default interface ISubCommand {
   client: CustomClient;
   name: string;
+  commandName: string;
+  subCommandGroup?: string;
 
   Execute(interaction: ChatInputCommandInteraction): void;
 }

@@ -68,8 +68,10 @@ export default class Handler implements IHandler {
             return logger.error({ event: "command_load_error", file: path.basename(file) }, "Command is missing a name.");
           }
 
-          if (path.basename(file).split(".").length > 2) {
-            this.client.subCommands?.set(command.name, command as SubCommand);
+          if (command instanceof SubCommand) {
+            const groupPrefix = command.subCommandGroup ? `${command.subCommandGroup}.` : "";
+            const subCommandKey = `${command.commandName}.${groupPrefix}${command.name}`;
+            this.client.subCommands?.set(subCommandKey, command);
           } else {
             this.client.commands.set(command.name, command as Command);
           }
