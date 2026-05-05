@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
   Events,
   MessageFlags,
+  PermissionsBitField,
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
@@ -56,6 +57,63 @@ export default class CommandHandler extends Event {
 
     timestamps.set(interaction.user.id, now);
     setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+
+    // --- Permission & Role check ---
+    if (interaction.guild) {
+      const member = interaction.guild.members.cache.get(interaction.user.id);
+      if (member) {
+        // Check Discord Permissions
+        if (command.default_member_permissions) {
+          const missingPermissions = member.permissions.missing(command.default_member_permissions);
+          if (missingPermissions.length > 0) {
+            const permissionNames = missingPermissions
+              .map((p) => `**${new PermissionsBitField(p).toArray()}**`)
+              .join(", ");
+            
+            logger.warn(
+              { event: "command_permission_denied", command: command.name, user: interaction.user.tag, missingPermissions },
+              `User ${interaction.user.tag} denied execution of /${command.name} due to missing permissions: ${missingPermissions.join(", ")}`
+            );
+
+            await interaction.reply({
+              embeds: [
+                new EmbedBuilder()
+                  .setColor("Red")
+                  .setDescription(`❌ You need the following permission(s) to use this command: ${permissionNames}`),
+              ],
+              flags: MessageFlags.Ephemeral,
+            });
+            return;
+          }
+        }
+
+        // Check Roles
+        if (command.roles.length > 0) {
+          const hasRole = command.roles.some((roleIdOrName) => 
+            member.roles.cache.has(roleIdOrName) || member.roles.cache.some((r) => r.name === roleIdOrName)
+          );
+
+          if (!hasRole) {
+            const roleNames = command.roles.map((r) => `**${r}**`).join(" or ");
+            
+            logger.warn(
+              { event: "command_role_denied", command: command.name, user: interaction.user.tag, requiredRoles: command.roles },
+              `User ${interaction.user.tag} denied execution of /${command.name} due to missing roles.`
+            );
+
+            await interaction.reply({
+              embeds: [
+                new EmbedBuilder()
+                  .setColor("Red")
+                  .setDescription(`❌ You must have one of the following roles to use this command: ${roleNames}`),
+              ],
+              flags: MessageFlags.Ephemeral,
+            });
+            return;
+          }
+        }
+      }
+    }
 
     // --- Execution ---
     logger.info(

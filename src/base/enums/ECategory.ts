@@ -1,11 +1,11 @@
 enum ECategory {
   utilities = "Utilities",
-  music = "Music",
+  // music = "Music",
   moderation = "Moderation",
   administrator = "Administrator",
-  fun = "Fun",
-  games = "Games",
-  dev = "Development",
+  // fun = "Fun",
+  // games = "Games",
+  // dev = "Development",
 }
 
 export default ECategory;

@@ -16,6 +16,7 @@ export default class Command implements ICommand {
   category: ECategory;
   options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
+  roles: string[];
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
@@ -27,6 +28,7 @@ export default class Command implements ICommand {
     this.description = options.description;
     this.category = options.category;
     this.default_member_permissions = options.default_member_permissions;
+    this.roles = options.roles || [];
     this.dm_permission = options.dm_permission;
     this.cooldown = options.cooldown;
     this.dev = options.dev;

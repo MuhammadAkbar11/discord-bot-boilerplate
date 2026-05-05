@@ -10,6 +10,7 @@ export default class Settings extends Command {
       description: "Manage bot settings for this server.",
       category: ECategory.utilities,
       default_member_permissions: PermissionsBitField.Flags.ManageGuild,
+      roles: ["Admin", "Moderator"],
       dm_permission: false,
       cooldown: 3,
       dev: true,
