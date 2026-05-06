@@ -12,6 +12,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
 import EmbedUtility from "../../lib/embed/EmbedUtility";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class Server extends Command {
   constructor(client: CustomClient) {
@@ -72,23 +73,24 @@ export default class Server extends Command {
 
     const selectRow =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
-    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`dismiss:${user.id}`)
-        .setLabel("Close")
-        .setStyle(ButtonStyle.Danger),
-    );
 
+    let responseMessage;
     if (context.interaction) {
-      await context.interaction.reply({
+      const response = await context.interaction.reply({
         embeds: [embed],
-        components: [selectRow, buttonRow],
+        components: [selectRow],
+        withResponse: true,
       });
+      responseMessage = response.resource?.message;
     } else {
-      await context.message!.reply({
+      responseMessage = await context.message!.reply({
         embeds: [embed],
-        components: [selectRow, buttonRow],
+        components: [selectRow],
       });
+    }
+
+    if (responseMessage) {
+      InteractionLifecycle.track(responseMessage as any, user.id);
     }
   }
 }

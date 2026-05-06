@@ -9,6 +9,7 @@ import {
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
 import EmbedUtility, { EEmbedColor } from "../../lib/embed/EmbedUtility";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class FlipCoin extends Button {
   constructor(client: CustomClient) {
@@ -61,5 +62,6 @@ export default class FlipCoin extends Button {
       embeds: [resultEmbed],
       components: [row],
     });
+    InteractionLifecycle.untrack(interaction.message.id);
   }
 }

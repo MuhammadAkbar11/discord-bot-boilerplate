@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class ServerButton extends Button {
   constructor(client: CustomClient) {
@@ -102,14 +103,11 @@ export default class ServerButton extends Button {
         .setCustomId(`server_page:${ownerId}:${category}:${page + 1}`)
         .setLabel("Next")
         .setStyle(ButtonStyle.Secondary)
-        .setDisabled(page === totalPages),
-      new ButtonBuilder()
-        .setCustomId(`dismiss:${ownerId}`)
-        .setLabel("Close")
-        .setStyle(ButtonStyle.Danger)
+        .setDisabled(page === totalPages)
     );
     components.push(buttonRow);
 
     await interaction.update({ embeds: [embed], components });
+    InteractionLifecycle.track(interaction.message, ownerId);
   }
 }

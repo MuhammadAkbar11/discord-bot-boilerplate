@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class Pagination extends Button {
   constructor(client: CustomClient) {
@@ -80,5 +81,6 @@ export default class Pagination extends Button {
       embeds: [embed],
       components: [row],
     });
+    InteractionLifecycle.track(interaction.message, interaction.user.id);
   }
 }

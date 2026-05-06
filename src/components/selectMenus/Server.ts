@@ -12,6 +12,7 @@ import {
 import SelectMenu from "../../base/classes/SelectMenu";
 import CustomClient from "../../base/classes/CustomClient";
 import EmbedUtility from "../../lib/embed/EmbedUtility";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class ServerMenu extends SelectMenu {
   constructor(client: CustomClient) {
@@ -66,14 +67,6 @@ export default class ServerMenu extends SelectMenu {
             inline: true,
           },
         );
-        const generalButtonRow =
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setCustomId(`dismiss:${ownerId}`)
-              .setLabel("Close")
-              .setStyle(ButtonStyle.Danger),
-          );
-        components.push(generalButtonRow);
         break;
 
       case "roles":
@@ -140,6 +133,7 @@ export default class ServerMenu extends SelectMenu {
     }
 
     await interaction.update({ embeds: [embed], components });
+    InteractionLifecycle.track(interaction.message, ownerId);
   }
 
   private async handlePaginatedList(
@@ -170,7 +164,6 @@ export default class ServerMenu extends SelectMenu {
     const components: any[] = [
       ActionRowBuilder.from(interaction.message.components[0] as any),
     ]; // Keep the select menu
-
     const buttonRow = new ActionRowBuilder<ButtonBuilder>();
 
     if (totalPages > 1) {
@@ -188,15 +181,11 @@ export default class ServerMenu extends SelectMenu {
       );
     }
 
-    buttonRow.addComponents(
-      new ButtonBuilder()
-        .setCustomId(`dismiss:${ownerId}`)
-        .setLabel("Close")
-        .setStyle(ButtonStyle.Danger),
-    );
-
-    components.push(buttonRow);
+    if (buttonRow.components.length > 0) {
+      components.push(buttonRow);
+    }
 
     await interaction.update({ embeds: [embed], components });
+    InteractionLifecycle.track(interaction.message, ownerId);
   }
 }

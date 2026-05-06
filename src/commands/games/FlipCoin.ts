@@ -9,6 +9,7 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class FlipCoin extends Command {
   constructor(client: CustomClient) {
@@ -49,10 +50,16 @@ export default class FlipCoin extends Command {
         .setStyle(ButtonStyle.Primary),
     );
 
+    let responseMessage;
     if (context.interaction) {
-      await context.interaction.reply({ embeds: [embed], components: [row] });
+      const response = await context.interaction.reply({ embeds: [embed], components: [row], withResponse: true });
+      responseMessage = response.resource?.message;
     } else {
-      await context.message!.reply({ embeds: [embed], components: [row] });
+      responseMessage = await context.message!.reply({ embeds: [embed], components: [row] });
+    }
+
+    if (responseMessage) {
+      InteractionLifecycle.track(responseMessage as any, user.id);
     }
   }
 }

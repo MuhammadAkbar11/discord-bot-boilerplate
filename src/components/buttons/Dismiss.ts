@@ -1,6 +1,7 @@
 import { ButtonInteraction, MessageFlags } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class Dismiss extends Button {
   constructor(client: CustomClient) {
@@ -25,6 +26,8 @@ export default class Dismiss extends Button {
     } catch (error) {
       // If we can't delete (e.g. no permissions), just remove components
       await interaction.update({ components: [] });
+    } finally {
+      InteractionLifecycle.untrack(interaction.message.id);
     }
   }
 }

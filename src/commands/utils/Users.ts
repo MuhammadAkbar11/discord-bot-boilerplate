@@ -3,6 +3,7 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
+import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
 
 export default class Users extends Command {
   constructor(client: CustomClient) {
@@ -53,10 +54,17 @@ export default class Users extends Command {
         .setDisabled(false)
     );
 
+    let responseMessage;
     if (context.interaction) {
-      await context.interaction.reply({ embeds: [embed], components: [row] });
+      const response = await context.interaction.reply({ embeds: [embed], components: [row], withResponse: true });
+      responseMessage = response.resource?.message;
     } else {
-      await context.message!.reply({ embeds: [embed], components: [row] });
+      responseMessage = await context.message!.reply({ embeds: [embed], components: [row] });
+    }
+
+    if (responseMessage) {
+      const userId = context.interaction?.user.id ?? context.message!.author.id;
+      InteractionLifecycle.track(responseMessage as any, userId);
     }
   }
 }
