@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-
-export const DEFAULT_PREFIX = "y!";
+import { DEFAULT_PREFIX } from "../../constants/bot";
 
 interface IGuildConfig {
   guildId: string;

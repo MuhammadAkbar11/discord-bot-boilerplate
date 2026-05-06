@@ -23,6 +23,7 @@ import {
 } from "../../base/interfaces/ICommandExecutionContext";
 import EmbedUtility from "../../lib/embed/EmbedUtility";
 import ErrorHandler from "../../lib/errors/ErrorHandler";
+import { DEFAULT_COMMAND_COOLDOWN } from "../../constants/bot";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -93,7 +94,7 @@ export default class CommandHandler extends Event {
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name)!;
-    const cooldownAmount = (command.cooldown || 3) * 1000;
+    const cooldownAmount = (command.cooldown || DEFAULT_COMMAND_COOLDOWN) * 1000;
     const user = CommandHandler.GetUser(context);
 
     if (

@@ -13,6 +13,7 @@ import SelectMenu from "../../base/classes/SelectMenu";
 import CustomClient from "../../base/classes/CustomClient";
 import EmbedUtility from "../../lib/embed/EmbedUtility";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import { DEFAULT_PAGINATION_PAGE_SIZE } from "../../constants/limits";
 
 export default class ServerMenu extends SelectMenu {
   constructor(client: CustomClient) {
@@ -145,7 +146,7 @@ export default class ServerMenu extends SelectMenu {
     page: number,
     ownerId: string,
   ): Promise<void> {
-    const pageSize = 15;
+    const pageSize = DEFAULT_PAGINATION_PAGE_SIZE;
     const totalPages = Math.ceil(items.length / pageSize) || 1;
     const start = (page - 1) * pageSize;
     const end = start + pageSize;

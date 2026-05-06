@@ -1,7 +1,8 @@
 import { Events, Message } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Events";
-import GuildConfigModel, { DEFAULT_PREFIX } from "../../base/models/GuildConfig";
+import GuildConfigModel from "../../base/models/GuildConfig";
+import { DEFAULT_PREFIX } from "../../constants/bot";
 import logger from "../../lib/logger";
 import CommandHandler from "./CommandHandler";
 

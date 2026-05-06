@@ -1,9 +1,10 @@
 import { Message, EmbedBuilder } from "discord.js";
 import logger from "../logger";
+import { GLOBAL_INTERACTION_TIMEOUT } from "../../constants/interactions";
 
 export default class InteractionLifecycle {
   private static trackedInteractions = new Map<string, NodeJS.Timeout>();
-  private static readonly GLOBAL_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+  private static readonly GLOBAL_TIMEOUT = GLOBAL_INTERACTION_TIMEOUT;
 
   /**
    * Track a message with interactive components to expire after a global timeout.

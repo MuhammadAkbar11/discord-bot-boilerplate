@@ -8,6 +8,7 @@ import {
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import { DEMO_PAGINATION_PAGE_SIZE } from "../../constants/limits";
 
 export default class Pagination extends Button {
   constructor(client: CustomClient) {
@@ -44,7 +45,7 @@ export default class Pagination extends Button {
       { id: "10", tag: "UserTen#0010" },
     ];
 
-    const pageSize = 3;
+    const pageSize = DEMO_PAGINATION_PAGE_SIZE;
     const totalPages = Math.ceil(users.length / pageSize);
 
     // Ensure page is within bounds

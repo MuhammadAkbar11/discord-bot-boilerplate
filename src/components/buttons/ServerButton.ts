@@ -10,6 +10,7 @@ import {
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import { DEFAULT_PAGINATION_PAGE_SIZE } from "../../constants/limits";
 
 export default class ServerButton extends Button {
   constructor(client: CustomClient) {
@@ -76,7 +77,7 @@ export default class ServerButton extends Button {
         break;
     }
 
-    const pageSize = 15;
+    const pageSize = DEFAULT_PAGINATION_PAGE_SIZE;
     const totalPages = Math.ceil(items.length / pageSize) || 1;
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
