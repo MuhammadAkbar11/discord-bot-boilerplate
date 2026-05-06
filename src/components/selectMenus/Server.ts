@@ -2,17 +2,15 @@ import {
   AnySelectMenuInteraction,
   EmbedBuilder,
   ActionRowBuilder,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
   MessageFlags,
+  ButtonStyle,
 } from "discord.js";
 import SelectMenu from "../../base/classes/SelectMenu";
 import CustomClient from "../../base/classes/CustomClient";
 import EmbedUtility from "../../lib/embed/EmbedUtility";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import PaginationUtility from "../../lib/pagination/PaginationUtility";
 import { DEFAULT_PAGINATION_PAGE_SIZE } from "../../constants/limits";
 
 export default class ServerMenu extends SelectMenu {
@@ -146,43 +144,37 @@ export default class ServerMenu extends SelectMenu {
     page: number,
     ownerId: string,
   ): Promise<void> {
-    const pageSize = DEFAULT_PAGINATION_PAGE_SIZE;
-    const totalPages = Math.ceil(items.length / pageSize) || 1;
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const currentItems = items.slice(start, end);
+    const pagination = PaginationUtility.getPaginationResult(
+      items,
+      page,
+      DEFAULT_PAGINATION_PAGE_SIZE,
+    );
 
     embed
       .setTitle(title)
-      .setDescription(currentItems.join("\n") || "No items found.");
+      .setDescription(pagination.items.join("\n") || "No items found.");
 
     // Update footer for pagination
     embed.setFooter({
-      text: `Page ${page} of ${totalPages} • Requested by ${interaction.user.tag}`,
+      text: PaginationUtility.getFooterText(
+        pagination.page,
+        pagination.totalPages,
+        `Requested by ${interaction.user.tag}`,
+      ),
       iconURL: interaction.user.displayAvatarURL(),
     });
 
     const components: any[] = [
       ActionRowBuilder.from(interaction.message.components[0] as any),
     ]; // Keep the select menu
-    const buttonRow = new ActionRowBuilder<ButtonBuilder>();
 
-    if (totalPages > 1) {
-      buttonRow.addComponents(
-        new ButtonBuilder()
-          .setCustomId(`server_page:${ownerId}:${category}:${page - 1}`)
-          .setLabel("Previous")
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(page === 1),
-        new ButtonBuilder()
-          .setCustomId(`server_page:${ownerId}:${category}:${page + 1}`)
-          .setLabel("Next")
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(page === totalPages),
+    if (pagination.totalPages > 1) {
+      const buttonRow = PaginationUtility.createNavigationRow(
+        pagination.page,
+        pagination.totalPages,
+        p => `server_page:${ownerId}:${category}:${p}`,
+        ButtonStyle.Secondary,
       );
-    }
-
-    if (buttonRow.components.length > 0) {
       components.push(buttonRow);
     }
 

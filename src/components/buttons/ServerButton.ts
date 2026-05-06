@@ -2,14 +2,14 @@ import {
   ButtonInteraction,
   EmbedBuilder,
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
   MessageFlags,
+  ButtonStyle,
 } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import PaginationUtility from "../../lib/pagination/PaginationUtility";
 import { DEFAULT_PAGINATION_PAGE_SIZE } from "../../constants/limits";
 
 export default class ServerButton extends Button {
@@ -77,34 +77,32 @@ export default class ServerButton extends Button {
         break;
     }
 
-    const pageSize = DEFAULT_PAGINATION_PAGE_SIZE;
-    const totalPages = Math.ceil(items.length / pageSize) || 1;
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const currentItems = items.slice(start, end);
+    const pagination = PaginationUtility.getPaginationResult(
+      items,
+      page,
+      DEFAULT_PAGINATION_PAGE_SIZE,
+    );
 
     embed
       .setTitle(title)
-      .setDescription(currentItems.join("\n") || "No items found.")
+      .setDescription(pagination.items.join("\n") || "No items found.")
       .setFooter({
-        text: `Page ${page} of ${totalPages} • Requested by ${interaction.user.tag}`,
+        text: PaginationUtility.getFooterText(
+          pagination.page,
+          pagination.totalPages,
+          `Requested by ${interaction.user.tag}`,
+        ),
       });
 
     const components: any[] = [
       ActionRowBuilder.from(interaction.message.components[0] as any),
     ]; // Keep the select menu
 
-    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`server_page:${ownerId}:${category}:${page - 1}`)
-        .setLabel("Previous")
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(page === 1),
-      new ButtonBuilder()
-        .setCustomId(`server_page:${ownerId}:${category}:${page + 1}`)
-        .setLabel("Next")
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(page === totalPages)
+    const buttonRow = PaginationUtility.createNavigationRow(
+      pagination.page,
+      pagination.totalPages,
+      p => `server_page:${ownerId}:${category}:${p}`,
+      ButtonStyle.Secondary,
     );
     components.push(buttonRow);
 

@@ -1,13 +1,8 @@
-import {
-  ButtonInteraction,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from "discord.js";
+import { ButtonInteraction, EmbedBuilder } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import PaginationUtility from "../../lib/pagination/PaginationUtility";
 import { DEMO_PAGINATION_PAGE_SIZE } from "../../constants/limits";
 
 export default class Pagination extends Button {
@@ -20,7 +15,7 @@ export default class Pagination extends Button {
   async Execute(interaction: ButtonInteraction): Promise<void> {
     const customId = interaction.customId;
     const [_, type, pageStr] = customId.split(":");
-    let page = parseInt(pageStr);
+    const page = parseInt(pageStr);
 
     if (type === "users") {
       await this.handleUserPagination(interaction, page);
@@ -45,37 +40,30 @@ export default class Pagination extends Button {
       { id: "10", tag: "UserTen#0010" },
     ];
 
-    const pageSize = DEMO_PAGINATION_PAGE_SIZE;
-    const totalPages = Math.ceil(users.length / pageSize);
-
-    // Ensure page is within bounds
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const currentUsers = users.slice(start, end);
+    const pagination = PaginationUtility.getPaginationResult(
+      users,
+      page,
+      DEMO_PAGINATION_PAGE_SIZE,
+    );
 
     const embed = new EmbedBuilder()
       .setTitle("👥 Paginated User List (Demo)")
       .setDescription(
-        currentUsers.map(u => `• **${u.tag}** (ID: ${u.id})`).join("\n"),
+        pagination.items.map(u => `• **${u.tag}** (ID: ${u.id})`).join("\n"),
       )
-      .setFooter({ text: `Page ${page} of ${totalPages}` })
+      .setFooter({
+        text: PaginationUtility.getFooterText(
+          pagination.page,
+          pagination.totalPages,
+        ),
+      })
       .setColor("Blue")
       .setTimestamp();
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`pagination:users:${page - 1}`)
-        .setLabel("Previous")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(page === 1),
-      new ButtonBuilder()
-        .setCustomId(`pagination:users:${page + 1}`)
-        .setLabel("Next")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(page === totalPages),
+    const row = PaginationUtility.createNavigationRow(
+      pagination.page,
+      pagination.totalPages,
+      p => `pagination:users:${p}`,
     );
 
     await interaction.update({
