@@ -5,6 +5,9 @@ import GuildConfigModel from "../../base/models/GuildConfig";
 import { DEFAULT_PREFIX } from "../../constants/bot";
 import logger from "../../lib/logger";
 import CommandHandler from "./CommandHandler";
+import PrefixParser from "../../lib/prefix/PrefixParser";
+import { ValidationError } from "../../lib/errors/AppError";
+import ErrorHandler from "../../lib/errors/ErrorHandler";
 
 export default class PrefixCommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -24,16 +27,27 @@ export default class PrefixCommandHandler extends Event {
     const rawCommand = message.content.slice(prefix.length).trim();
     if (!rawCommand) return;
 
-    const [commandName, ...args] = rawCommand.split(/\s+/);
-    if (!commandName) return;
+    try {
+      const parsedArgs = PrefixParser.parse(rawCommand);
+      if (parsedArgs.length === 0) return;
 
-    await CommandHandler.ExecutePrefixCommand(
-      this.client,
-      message,
-      prefix,
-      commandName.toLowerCase(),
-      args,
-    );
+      const commandName = parsedArgs[0];
+      const args = parsedArgs.slice(1);
+
+      await CommandHandler.ExecutePrefixCommand(
+        this.client,
+        message,
+        prefix,
+        commandName.toLowerCase(),
+        args,
+      );
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        await ErrorHandler.handle(error, { message });
+      } else {
+        logger.error({ event: "prefix_parsing_error", error }, "Failed to parse prefix command.");
+      }
+    }
   }
 
   private async GetPrefix(guildId: string): Promise<string> {
