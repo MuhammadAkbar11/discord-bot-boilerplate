@@ -13,6 +13,7 @@ import {
 import Handler from "./Handler";
 import Command from "./Command";
 import SubCommand from "./SubCommand";
+import Button from "./Button";
 import { connect, disconnect } from "mongoose";
 import logger from "../../lib/logger";
 
@@ -21,6 +22,7 @@ export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
   commands: Collection<string, Command>;
   subCommands: Collection<string, SubCommand>;
+  buttons: Collection<string, Button>;
   cooldowns: Collection<string, Collection<string, number>>;
   developmentMode: boolean;
 
@@ -47,6 +49,7 @@ export default class CustomClient extends Client implements ICustomClient {
     this.handler = new Handler(this);
     this.commands = new Collection();
     this.subCommands = new Collection();
+    this.buttons = new Collection();
     this.cooldowns = new Collection();
     this.developmentMode = ENV_MODE === "development";
   }
@@ -74,6 +77,7 @@ export default class CustomClient extends Client implements ICustomClient {
   async LoadHandler(): Promise<void> {
     await this.handler.LoadEvents();
     await this.handler.LoadCommands();
+    await this.handler.LoadButtons();
   }
 
   async Shutdown(): Promise<void> {

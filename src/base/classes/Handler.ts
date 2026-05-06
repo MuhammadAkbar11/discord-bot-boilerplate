@@ -6,11 +6,13 @@ import CustomClient from "./CustomClient";
 import Event from "./Events";
 import Command from "./Command";
 import SubCommand from "./SubCommand";
+import Button from "./Button";
 import logger from "../../lib/logger";
 
 export default class Handler implements IHandler {
   eventFilepath: string;
   commandsFilepath: string;
+  buttonsFilepath: string;
   client: CustomClient;
   constructor(client: CustomClient) {
     this.client = client;
@@ -23,6 +25,11 @@ export default class Handler implements IHandler {
       ENV_MODE === "development"
         ? "src/commands/**/*.ts"
         : "build/commands/**/*.js";
+
+    this.buttonsFilepath =
+      ENV_MODE === "development"
+        ? "src/components/buttons/**/*.ts"
+        : "build/components/buttons/**/*.js";
   }
 
   async LoadEvents(): Promise<void> {
@@ -87,6 +94,30 @@ export default class Handler implements IHandler {
       );
     } catch (error) {
       logger.error({ event: "commands_load_failed", error }, "Error loading commands");
+    }
+  }
+
+  async LoadButtons(): Promise<void> {
+    try {
+      const files = (await glob(this.buttonsFilepath)).map(filePath =>
+        path.resolve(filePath),
+      );
+
+      await Promise.all(
+        files.map(async file => {
+          const button: Button = new (await import(file)).default(this.client);
+
+          if (!button?.name) {
+            return logger.error({ event: "button_load_error", file: path.basename(file) }, "Button is missing a name.");
+          }
+
+          this.client.buttons.set(button.name, button);
+
+          delete require.cache[require.resolve(file)];
+        }),
+      );
+    } catch (error) {
+      logger.error({ event: "buttons_load_failed", error }, "Error loading buttons");
     }
   }
 }

@@ -1,0 +1,63 @@
+import {
+  ButtonInteraction,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  MessageFlags,
+} from "discord.js";
+import Button from "../../base/classes/Button";
+import CustomClient from "../../base/classes/CustomClient";
+
+export default class FlipCoin extends Button {
+  constructor(client: CustomClient) {
+    super(client, {
+      name: "flipcoin",
+    });
+  }
+
+  async Execute(interaction: ButtonInteraction): Promise<void | any> {
+    const [_, ownerId, choice] = interaction.customId.split(":");
+
+    // Ownership check
+    if (interaction.user.id !== ownerId) {
+      return interaction.reply({
+        content: "❌ You cannot interact with this button.",
+        flags: [MessageFlags.Ephemeral],
+      });
+    }
+
+    const result = Math.random() < 0.5 ? "heads" : "tails";
+    const won = choice === result;
+
+    const resultEmbed = new EmbedBuilder()
+      .setTitle("🪙 Coin Flip Result")
+      .setDescription(
+        `You selected: **${choice.charAt(0).toUpperCase() + choice.slice(1)}**\n` +
+          `Result: **${result.charAt(0).toUpperCase() + result.slice(1)}**\n\n` +
+          (won ? "🎉 **You won!**" : "💀 **You lost!**"),
+      )
+      .setColor(won ? "Green" : "Red")
+      .setFooter({ text: `Game for ${interaction.user.tag}` })
+      .setTimestamp();
+
+    // Disable buttons
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId("flipcoin_disabled_heads")
+        .setLabel("Heads")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true),
+      new ButtonBuilder()
+        .setCustomId("flipcoin_disabled_tails")
+        .setLabel("Tails")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true),
+    );
+
+    await interaction.update({
+      embeds: [resultEmbed],
+      components: [row],
+    });
+  }
+}

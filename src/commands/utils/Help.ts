@@ -7,6 +7,7 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
+import logger from "../../lib/logger";
 
 export default class Help extends Command {
   constructor(client: CustomClient) {
@@ -45,6 +46,14 @@ export default class Help extends Command {
     // Filter commands that support the current context type (slash or prefix)
     const supportedCommands = this.client.commands.filter(
       cmd => cmd.supports[type],
+    );
+
+    logger.debug(
+      {
+        event: "help_command",
+        supportedCommands: Array.from(supportedCommands),
+      },
+      "supportedCommands",
     );
 
     for (const [_, command] of supportedCommands) {

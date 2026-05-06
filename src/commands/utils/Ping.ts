@@ -30,20 +30,23 @@ export default class Ping extends Command {
       const pingEmbed = new EmbedBuilder()
         .setColor("Yellow")
         .setDescription("Pinging...");
-      const pongEmbed = (latency: number) => new EmbedBuilder()
-        .setColor("Green")
-        .setDescription(
-          `Pong! 🏓\nBot Latency: \`${latency}ms\`\nAPI Latency: \`${Math.round(this.client.ws.ping)}ms\``,
-        );
+      const pongEmbed = (latency: number) =>
+        new EmbedBuilder()
+          .setColor("Green")
+          .setDescription(
+            `Pong! 🏓\nBot Latency: \`${latency}ms\`\nAPI Latency: \`${Math.round(this.client.ws.ping)}ms\``,
+          );
 
       let latency: number;
 
+      // If the command was invoked as a slash command
       if (context.interaction) {
         const response = await context.interaction.reply({
           embeds: [pingEmbed],
           withResponse: true,
         });
 
+        // get the latency by calculating the difference between the response timestamp and the interaction timestamp
         latency =
           (response.resource?.message?.createdTimestamp ?? Date.now()) -
           context.interaction.createdTimestamp;
@@ -70,9 +73,15 @@ export default class Ping extends Command {
       const errorMessage =
         "❌ An error occurred while executing the ping command.";
       if (context.interaction?.replied || context.interaction?.deferred) {
-        await context.interaction.followUp({ content: errorMessage, ephemeral: true });
+        await context.interaction.followUp({
+          content: errorMessage,
+          ephemeral: true,
+        });
       } else if (context.interaction) {
-        await context.interaction.reply({ content: errorMessage, ephemeral: true });
+        await context.interaction.reply({
+          content: errorMessage,
+          ephemeral: true,
+        });
       } else {
         await context.message!.reply(errorMessage);
       }

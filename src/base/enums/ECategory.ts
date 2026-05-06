@@ -4,7 +4,7 @@ enum ECategory {
   moderation = "Moderation",
   administrator = "Administrator",
   // fun = "Fun",
-  // games = "Games",
+  games = "Games",
   // dev = "Development",
 }
 

@@ -1,9 +1,11 @@
 import {
+  ButtonInteraction,
   ChatInputCommandInteraction,
   Collection,
   EmbedBuilder,
   Events,
   GuildMember,
+  Interaction,
   InteractionReplyOptions,
   Message,
   MessageFlags,
@@ -28,15 +30,17 @@ export default class CommandHandler extends Event {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (!interaction.isChatInputCommand()) return;
-
-    await CommandHandler.ExecuteCommand(this.client, {
-      type: "slash",
-      commandName: interaction.commandName,
-      args: [],
-      interaction,
-    });
+  async Execute(interaction: Interaction): Promise<void> {
+    if (interaction.isChatInputCommand()) {
+      await CommandHandler.ExecuteCommand(this.client, {
+        type: "slash",
+        commandName: interaction.commandName,
+        args: [],
+        interaction,
+      });
+    } else if (interaction.isButton()) {
+      await CommandHandler.ExecuteButton(this.client, interaction);
+    }
   }
 
   static async ExecutePrefixCommand(
@@ -258,6 +262,42 @@ export default class CommandHandler extends Event {
         content: errorMessage,
         flags: [MessageFlags.Ephemeral],
       });
+    }
+  }
+
+  private static async ExecuteButton(
+    client: CustomClient,
+    interaction: ButtonInteraction,
+  ): Promise<void> {
+    const customId = interaction.customId;
+    const buttonName = customId.split(":")[0];
+    const button = client.buttons.get(buttonName);
+
+    if (!button) return;
+
+    logger.info(
+      {
+        event: "button_executed",
+        button: button.name,
+        user: interaction.user.tag,
+        userId: interaction.user.id,
+        guildId: interaction.guildId,
+        customId,
+      },
+      `User ${interaction.user.tag} clicked button ${button.name} (${customId})`,
+    );
+
+    try {
+      await button.Execute(interaction);
+    } catch (error) {
+      logger.error(
+        {
+          event: "button_error",
+          button: button.name,
+          error,
+        },
+        `Error executing button: ${button.name}`,
+      );
     }
   }
 
