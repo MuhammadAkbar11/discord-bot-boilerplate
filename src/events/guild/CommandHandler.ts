@@ -1,4 +1,5 @@
 import {
+  AnySelectMenuInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
   Collection,
@@ -40,6 +41,8 @@ export default class CommandHandler extends Event {
       });
     } else if (interaction.isButton()) {
       await CommandHandler.ExecuteButton(this.client, interaction);
+    } else if (interaction.isAnySelectMenu()) {
+      await CommandHandler.ExecuteSelectMenu(this.client, interaction);
     }
   }
 
@@ -297,6 +300,42 @@ export default class CommandHandler extends Event {
           error,
         },
         `Error executing button: ${button.name}`,
+      );
+    }
+  }
+
+  private static async ExecuteSelectMenu(
+    client: CustomClient,
+    interaction: AnySelectMenuInteraction,
+  ): Promise<void> {
+    const customId = interaction.customId;
+    const menuName = customId.split(":")[0];
+    const menu = client.selectMenus.get(menuName);
+
+    if (!menu) return;
+
+    logger.info(
+      {
+        event: "select_menu_executed",
+        menu: menu.name,
+        user: interaction.user.tag,
+        userId: interaction.user.id,
+        guildId: interaction.guildId,
+        customId,
+      },
+      `User ${interaction.user.tag} used select menu ${menu.name} (${customId})`,
+    );
+
+    try {
+      await menu.Execute(interaction);
+    } catch (error) {
+      logger.error(
+        {
+          event: "select_menu_error",
+          menu: menu.name,
+          error,
+        },
+        `Error executing select menu: ${menu.name}`,
       );
     }
   }

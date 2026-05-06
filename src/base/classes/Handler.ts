@@ -7,12 +7,14 @@ import Event from "./Events";
 import Command from "./Command";
 import SubCommand from "./SubCommand";
 import Button from "./Button";
+import SelectMenu from "./SelectMenu";
 import logger from "../../lib/logger";
 
 export default class Handler implements IHandler {
   eventFilepath: string;
   commandsFilepath: string;
   buttonsFilepath: string;
+  selectMenusFilepath: string;
   client: CustomClient;
   constructor(client: CustomClient) {
     this.client = client;
@@ -30,6 +32,11 @@ export default class Handler implements IHandler {
       ENV_MODE === "development"
         ? "src/components/buttons/**/*.ts"
         : "build/components/buttons/**/*.js";
+
+    this.selectMenusFilepath =
+      ENV_MODE === "development"
+        ? "src/components/selectMenus/**/*.ts"
+        : "build/components/selectMenus/**/*.js";
   }
 
   async LoadEvents(): Promise<void> {
@@ -118,6 +125,30 @@ export default class Handler implements IHandler {
       );
     } catch (error) {
       logger.error({ event: "buttons_load_failed", error }, "Error loading buttons");
+    }
+  }
+
+  async LoadSelectMenus(): Promise<void> {
+    try {
+      const files = (await glob(this.selectMenusFilepath)).map(filePath =>
+        path.resolve(filePath),
+      );
+
+      await Promise.all(
+        files.map(async file => {
+          const selectMenu: SelectMenu = new (await import(file)).default(this.client);
+
+          if (!selectMenu?.name) {
+            return logger.error({ event: "select_menu_load_error", file: path.basename(file) }, "Select Menu is missing a name.");
+          }
+
+          this.client.selectMenus.set(selectMenu.name, selectMenu);
+
+          delete require.cache[require.resolve(file)];
+        }),
+      );
+    } catch (error) {
+      logger.error({ event: "select_menus_load_failed", error }, "Error loading select menus");
     }
   }
 }
