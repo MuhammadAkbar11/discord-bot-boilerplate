@@ -8,8 +8,9 @@ import {
 } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
-import EmbedUtility, { EEmbedColor } from "../../lib/embed/EmbedUtility";
+import EmbedUtility from "../../lib/embed/EmbedUtility";
 import InteractionLifecycle from "../../lib/interactions/InteractionLifecycle";
+import { EEmbedColor } from "../../constants/embeds";
 
 export default class FlipCoin extends Button {
   constructor(client: CustomClient) {
@@ -25,7 +26,9 @@ export default class FlipCoin extends Button {
     if (interaction.user.id !== ownerId) {
       return interaction.reply({
         embeds: [
-          EmbedUtility.createErrorEmbed("You cannot interact with this button."),
+          EmbedUtility.createErrorEmbed(
+            "You cannot interact with this button.",
+          ),
         ],
         flags: [MessageFlags.Ephemeral],
       });
