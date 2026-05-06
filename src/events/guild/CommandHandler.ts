@@ -21,6 +21,8 @@ import {
   CommandExecutionType,
   ICommandExecutionContext,
 } from "../../base/interfaces/ICommandExecutionContext";
+import EmbedUtility from "../../lib/embed/EmbedUtility";
+import ErrorHandler from "../../lib/errors/ErrorHandler";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -104,11 +106,9 @@ export default class CommandHandler extends Event {
       ).toFixed();
       await CommandHandler.Reply(context, {
         embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(
-              `❌ Please wait another \`${remaining}\` seconds to run this command.`,
-            ),
+          EmbedUtility.createErrorEmbed(
+            `Please wait another \`${remaining}\` seconds to run this command.`,
+          ),
         ],
         flags: [MessageFlags.Ephemeral],
       });
@@ -158,11 +158,9 @@ export default class CommandHandler extends Event {
 
             await CommandHandler.Reply(context, {
               embeds: [
-                new EmbedBuilder()
-                  .setColor("Red")
-                  .setDescription(
-                    `❌ You need the following permission(s) to use this command: ${permissionNames}`,
-                  ),
+                EmbedUtility.createErrorEmbed(
+                  `You need the following permission(s) to use this command: ${permissionNames}`,
+                ),
               ],
               flags: [MessageFlags.Ephemeral],
             });
@@ -194,11 +192,9 @@ export default class CommandHandler extends Event {
 
             await CommandHandler.Reply(context, {
               embeds: [
-                new EmbedBuilder()
-                  .setColor("Red")
-                  .setDescription(
-                    `⛔ You don't have permissions to use this command`,
-                  ),
+                EmbedUtility.createErrorEmbed(
+                  "You don't have permissions to use this command",
+                ),
               ],
               flags: [MessageFlags.Ephemeral],
             });
@@ -250,20 +246,9 @@ export default class CommandHandler extends Event {
 
       await command.Execute(context);
     } catch (error) {
-      logger.error(
-        {
-          event: "command_error",
-          command: command.name,
-          executionType: context.type,
-          error,
-        },
-        `Error executing command ${CommandHandler.FormatCommandName(context.type, command.name)}`,
-      );
-
-      const errorMessage = "❌ An error occurred while executing this command.";
-      await CommandHandler.Reply(context, {
-        content: errorMessage,
-        flags: [MessageFlags.Ephemeral],
+      await ErrorHandler.handle(error as Error, {
+        interaction: context.interaction,
+        message: context.message,
       });
     }
   }
@@ -293,14 +278,7 @@ export default class CommandHandler extends Event {
     try {
       await button.Execute(interaction);
     } catch (error) {
-      logger.error(
-        {
-          event: "button_error",
-          button: button.name,
-          error,
-        },
-        `Error executing button: ${button.name}`,
-      );
+      await ErrorHandler.handle(error as Error, { interaction });
     }
   }
 
@@ -329,14 +307,7 @@ export default class CommandHandler extends Event {
     try {
       await menu.Execute(interaction);
     } catch (error) {
-      logger.error(
-        {
-          event: "select_menu_error",
-          menu: menu.name,
-          error,
-        },
-        `Error executing select menu: ${menu.name}`,
-      );
+      await ErrorHandler.handle(error as Error, { interaction });
     }
   }
 

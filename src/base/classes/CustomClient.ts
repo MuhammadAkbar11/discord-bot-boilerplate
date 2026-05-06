@@ -17,6 +17,7 @@ import Button from "./Button";
 import SelectMenu from "./SelectMenu";
 import { connect, disconnect } from "mongoose";
 import logger from "../../lib/logger";
+import ErrorHandler from "../../lib/errors/ErrorHandler";
 
 export default class CustomClient extends Client implements ICustomClient {
   handler: Handler;
@@ -55,6 +56,9 @@ export default class CustomClient extends Client implements ICustomClient {
     this.selectMenus = new Collection();
     this.cooldowns = new Collection();
     this.developmentMode = ENV_MODE === "development";
+
+    this.on("error", (error) => ErrorHandler.handle(error));
+    this.on("warn", (info) => logger.warn({ event: "discord_warning" }, info));
   }
 
   async Init(): Promise<void> {

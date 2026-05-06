@@ -11,6 +11,7 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
+import EmbedUtility from "../../lib/embed/EmbedUtility";
 
 export default class Server extends Command {
   constructor(client: CustomClient) {
@@ -36,16 +37,12 @@ export default class Server extends Command {
 
     if (!guild) return;
 
-    const embed = new EmbedBuilder()
-      .setTitle(`🏰 Server Info: ${guild.name}`)
-      .setDescription("Select a category below to view more information.")
-      .setThumbnail(guild.iconURL())
-      .setColor("Blue")
-      .setFooter({
-        text: `Requested by ${user.tag}`,
-        iconURL: user.displayAvatarURL(),
-      })
-      .setTimestamp();
+    const embed = EmbedUtility.createBaseEmbed({
+      user,
+      title: `🏰 Server Info: ${guild.name}`,
+      description: "Select a category below to view more information.",
+      thumbnail: guild.iconURL() || undefined,
+    });
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId(`server:${user.id}:info`)

@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 import SelectMenu from "../../base/classes/SelectMenu";
 import CustomClient from "../../base/classes/CustomClient";
+import EmbedUtility from "../../lib/embed/EmbedUtility";
 
 export default class ServerMenu extends SelectMenu {
   constructor(client: CustomClient) {
@@ -25,7 +26,9 @@ export default class ServerMenu extends SelectMenu {
     // Ownership check
     if (interaction.user.id !== ownerId) {
       return interaction.reply({
-        content: "❌ You cannot interact with this menu.",
+        embeds: [
+          EmbedUtility.createErrorEmbed("You cannot interact with this menu."),
+        ],
         flags: [MessageFlags.Ephemeral],
       });
     }
@@ -36,14 +39,10 @@ export default class ServerMenu extends SelectMenu {
     const guild = interaction.guild;
     if (!guild) return;
 
-    const embed = new EmbedBuilder()
-      .setThumbnail(guild.iconURL())
-      .setColor("Blue")
-      .setFooter({
-        text: `Requested by ${interaction.user.tag}`,
-        iconURL: interaction.user.displayAvatarURL(),
-      })
-      .setTimestamp();
+    const embed = EmbedUtility.createBaseEmbed({
+      user: interaction.user,
+      thumbnail: guild?.iconURL() as string,
+    });
 
     let components: any[] = [];
     const selectMenuRow = ActionRowBuilder.from(
@@ -67,12 +66,13 @@ export default class ServerMenu extends SelectMenu {
             inline: true,
           },
         );
-        const generalButtonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId(`dismiss:${ownerId}`)
-            .setLabel("Close")
-            .setStyle(ButtonStyle.Danger)
-        );
+        const generalButtonRow =
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId(`dismiss:${ownerId}`)
+              .setLabel("Close")
+              .setStyle(ButtonStyle.Danger),
+          );
         components.push(generalButtonRow);
         break;
 
@@ -159,10 +159,13 @@ export default class ServerMenu extends SelectMenu {
 
     embed
       .setTitle(title)
-      .setDescription(currentItems.join("\n") || "No items found.")
-      .setFooter({
-        text: `Page ${page} of ${totalPages} • Requested by ${interaction.user.tag}`,
-      });
+      .setDescription(currentItems.join("\n") || "No items found.");
+
+    // Update footer for pagination
+    embed.setFooter({
+      text: `Page ${page} of ${totalPages} • Requested by ${interaction.user.tag}`,
+      iconURL: interaction.user.displayAvatarURL(),
+    });
 
     const components: any[] = [
       ActionRowBuilder.from(interaction.message.components[0] as any),
@@ -181,7 +184,7 @@ export default class ServerMenu extends SelectMenu {
           .setCustomId(`server_page:${ownerId}:${category}:${page + 1}`)
           .setLabel("Next")
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(page === totalPages)
+          .setDisabled(page === totalPages),
       );
     }
 
@@ -189,7 +192,7 @@ export default class ServerMenu extends SelectMenu {
       new ButtonBuilder()
         .setCustomId(`dismiss:${ownerId}`)
         .setLabel("Close")
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
     );
 
     components.push(buttonRow);

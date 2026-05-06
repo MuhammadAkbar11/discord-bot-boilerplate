@@ -8,6 +8,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
 import logger from "../../lib/logger";
+import EmbedUtility from "../../lib/embed/EmbedUtility";
 
 export default class Help extends Command {
   constructor(client: CustomClient) {
@@ -31,15 +32,11 @@ export default class Help extends Command {
     const type = context.type;
     const user = context.interaction?.user ?? context.message!.author;
 
-    const embed = new EmbedBuilder()
-      .setColor("Blue")
-      .setTitle("📚 Command Help")
-      .setThumbnail(this.client.user?.displayAvatarURL() || null)
-      .setFooter({
-        text: `Requested by ${user.tag}`,
-        iconURL: user.displayAvatarURL(),
-      })
-      .setTimestamp();
+    const embed = EmbedUtility.createBaseEmbed({
+      user,
+      title: "📚 Command Help",
+      thumbnail: this.client.user?.displayAvatarURL(),
+    });
 
     const helpLines: string[] = [];
 

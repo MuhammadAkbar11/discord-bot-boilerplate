@@ -9,7 +9,7 @@ export default class Dismiss extends Button {
     });
   }
 
-  async Execute(interaction: ButtonInteraction): Promise<void> {
+  async Execute(interaction: ButtonInteraction): Promise<void | any> {
     const [_, ownerId] = interaction.customId.split(":");
 
     // Ownership check

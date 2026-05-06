@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";
+import EmbedUtility, { EEmbedColor } from "../../lib/embed/EmbedUtility";
 
 export default class FlipCoin extends Button {
   constructor(client: CustomClient) {
@@ -22,7 +23,9 @@ export default class FlipCoin extends Button {
     // Ownership check
     if (interaction.user.id !== ownerId) {
       return interaction.reply({
-        content: "❌ You cannot interact with this button.",
+        embeds: [
+          EmbedUtility.createErrorEmbed("You cannot interact with this button."),
+        ],
         flags: [MessageFlags.Ephemeral],
       });
     }
@@ -30,16 +33,15 @@ export default class FlipCoin extends Button {
     const result = Math.random() < 0.5 ? "heads" : "tails";
     const won = choice === result;
 
-    const resultEmbed = new EmbedBuilder()
-      .setTitle("🪙 Coin Flip Result")
-      .setDescription(
+    const resultEmbed = EmbedUtility.createBaseEmbed({
+      user: interaction.user,
+      title: "🪙 Coin Flip Result",
+      description:
         `You selected: **${choice.charAt(0).toUpperCase() + choice.slice(1)}**\n` +
-          `Result: **${result.charAt(0).toUpperCase() + result.slice(1)}**\n\n` +
-          (won ? "🎉 **You won!**" : "💀 **You lost!**"),
-      )
-      .setColor(won ? "Green" : "Red")
-      .setFooter({ text: `Game for ${interaction.user.tag}` })
-      .setTimestamp();
+        `Result: **${result.charAt(0).toUpperCase() + result.slice(1)}**\n\n` +
+        (won ? "🎉 **You won!**" : "💀 **You lost!**"),
+      color: won ? EEmbedColor.Success : EEmbedColor.Error,
+    });
 
     // Disable buttons
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
