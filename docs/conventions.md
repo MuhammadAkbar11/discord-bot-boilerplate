@@ -51,3 +51,15 @@ This guarantees uniform colors (defined in `constants/embeds.ts`) and automatic 
 Never allow errors to crash the process or leave a user hanging without a reply.
 *   Any unhandled errors thrown inside a `Execute()` method are automatically caught by `CommandHandler.ts` and sent to `ErrorHandler.ts`.
 *   If you need to explicitly throw an error (e.g., invalid arguments), import an error class from `src/lib/errors/AppError.ts` (like `ValidationError`) and throw it. The system will handle the rest.
+
+## 🏷️ Project Versioning
+
+This project follows [Semantic Versioning (SemVer)](https://semver.org/).
+
+**Format:** `MAJOR.MINOR.PATCH`
+
+1.  **MAJOR**: Significant architectural changes or breaking API modifications (e.g., refactoring the entire command handler).
+2.  **MINOR**: New features added in a backwards-compatible manner (e.g., adding a new utility class or a major command).
+3.  **PATCH**: Backwards-compatible bug fixes and minor improvements.
+
+All notable changes should be documented in the `CHANGELOG.md` file following the [Keep a Changelog](https://keepachangelog.com/) format.

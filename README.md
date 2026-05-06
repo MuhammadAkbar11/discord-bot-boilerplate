@@ -19,6 +19,7 @@ For detailed guides on how the bot is structured and how to develop features, se
 *   [Command System](docs/commands.md)
 *   [Interactions System](docs/interactions.md)
 *   [Project Conventions](docs/conventions.md)
+*   [Changelog](CHANGELOG.md)
 
 ## 🚀 Installation & Setup
 
