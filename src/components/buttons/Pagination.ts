@@ -14,6 +14,7 @@ export default class Pagination extends Button {
 
   async Execute(interaction: ButtonInteraction): Promise<void> {
     const customId = interaction.customId;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, type, pageStr] = customId.split(":");
     const page = parseInt(pageStr);
 
@@ -49,7 +50,7 @@ export default class Pagination extends Button {
     const embed = new EmbedBuilder()
       .setTitle("👥 Paginated User List (Demo)")
       .setDescription(
-        pagination.items.map(u => `• **${u.tag}** (ID: ${u.id})`).join("\n"),
+        pagination.items.map((u) => `• **${u.tag}** (ID: ${u.id})`).join("\n"),
       )
       .setFooter({
         text: PaginationUtility.getFooterText(
@@ -63,7 +64,7 @@ export default class Pagination extends Button {
     const row = PaginationUtility.createNavigationRow(
       pagination.page,
       pagination.totalPages,
-      p => `pagination:users:${p}`,
+      (p) => `pagination:users:${p}`,
     );
 
     await interaction.update({

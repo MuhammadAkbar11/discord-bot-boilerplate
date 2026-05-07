@@ -15,5 +15,5 @@ export default class Event implements IEvent {
     this.once = options.once;
   }
 
-  async Execute(...args: unknown[]): Promise<void> {}
+  async Execute(..._args: unknown[]): Promise<void> {}
 }

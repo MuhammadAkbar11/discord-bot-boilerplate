@@ -21,6 +21,7 @@ export default class ServerMenu extends SelectMenu {
   }
 
   async Execute(interaction: AnySelectMenuInteraction): Promise<void | any> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ownerId, action] = interaction.customId.split(":");
 
     // Ownership check
@@ -44,7 +45,7 @@ export default class ServerMenu extends SelectMenu {
       thumbnail: guild?.iconURL() as string,
     });
 
-    let components: any[] = [];
+    const components: any[] = [];
     const selectMenuRow = ActionRowBuilder.from(
       interaction.message.components[0] as any,
     );
@@ -71,8 +72,8 @@ export default class ServerMenu extends SelectMenu {
       case "roles":
         const roles = guild.roles.cache
           .sort((a, b) => b.position - a.position)
-          .filter(r => r.id !== guild.id)
-          .map(r => `• ${r.toString()} (\`${r.members.size}\`)`);
+          .filter((r) => r.id !== guild.id)
+          .map((r) => `• ${r.toString()} (\`${r.members.size}\`)`);
         await this.handlePaginatedList(
           interaction,
           embed,
@@ -86,24 +87,24 @@ export default class ServerMenu extends SelectMenu {
 
       case "channels":
         const categories = guild.channels.cache
-          .filter(c => c.type === ChannelType.GuildCategory)
+          .filter((c) => c.type === ChannelType.GuildCategory)
           .sort((a, b) => (a as any).position - (b as any).position);
 
         const channelTree: string[] = [];
 
         // Orphans (no category)
         const orphans = guild.channels.cache
-          .filter(c => !c.parentId && c.type !== ChannelType.GuildCategory)
+          .filter((c) => !c.parentId && c.type !== ChannelType.GuildCategory)
           .sort((a, b) => (a as any).position - (b as any).position);
 
-        orphans.forEach(c => channelTree.push(`• ${c.toString()}`));
+        orphans.forEach((c) => channelTree.push(`• ${c.toString()}`));
 
-        categories.forEach(cat => {
+        categories.forEach((cat) => {
           channelTree.push(`\n**${cat.name.toUpperCase()}**`);
           const children = guild.channels.cache
-            .filter(c => c.parentId === cat.id)
+            .filter((c) => c.parentId === cat.id)
             .sort((a, b) => (a as any).position - (b as any).position);
-          children.forEach(c => channelTree.push(`  └ ${c.toString()}`));
+          children.forEach((c) => channelTree.push(`  └ ${c.toString()}`));
         });
 
         await this.handlePaginatedList(
@@ -118,7 +119,7 @@ export default class ServerMenu extends SelectMenu {
         return;
 
       case "emojis":
-        const emojis = guild.emojis.cache.map(e => e.toString());
+        const emojis = guild.emojis.cache.map((e) => e.toString());
         await this.handlePaginatedList(
           interaction,
           embed,
@@ -172,7 +173,7 @@ export default class ServerMenu extends SelectMenu {
       const buttonRow = PaginationUtility.createNavigationRow(
         pagination.page,
         pagination.totalPages,
-        p => `server_page:${ownerId}:${category}:${p}`,
+        (p) => `server_page:${ownerId}:${category}:${p}`,
         ButtonStyle.Secondary,
       );
       components.push(buttonRow);

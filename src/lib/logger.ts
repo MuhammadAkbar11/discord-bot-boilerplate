@@ -14,17 +14,16 @@ const logger = pino({
     hostname: false,
   },
   timestamp: pino.stdTimeFunctions.isoTime,
-  transport:
-    isDev
-      ? {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            ignore: "pid,hostname",
-            translateTime: "SYS:standard",
-          },
-        }
-      : undefined,
+  transport: isDev
+    ? {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          ignore: "pid,hostname",
+          translateTime: "SYS:standard",
+        },
+      }
+    : undefined,
 });
 
 export default logger;

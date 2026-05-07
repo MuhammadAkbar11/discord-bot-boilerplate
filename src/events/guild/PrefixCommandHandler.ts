@@ -45,14 +45,19 @@ export default class PrefixCommandHandler extends Event {
       if (error instanceof ValidationError) {
         await ErrorHandler.handle(error, { message });
       } else {
-        logger.error({ event: "prefix_parsing_error", error }, "Failed to parse prefix command.");
+        logger.error(
+          { event: "prefix_parsing_error", error },
+          "Failed to parse prefix command.",
+        );
       }
     }
   }
 
   private async GetPrefix(guildId: string): Promise<string> {
     try {
-      const guildConfig = await GuildConfigModel.findOne({ guildId }).select("prefix").lean();
+      const guildConfig = await GuildConfigModel.findOne({ guildId })
+        .select("prefix")
+        .lean();
       return guildConfig?.prefix || DEFAULT_PREFIX;
     } catch (error) {
       logger.error(

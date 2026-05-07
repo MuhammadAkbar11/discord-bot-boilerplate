@@ -12,5 +12,5 @@ export default class Button implements IButton {
     this.name = options.name;
   }
 
-  async Execute(interaction: ButtonInteraction): Promise<void> {}
+  async Execute(_interaction: ButtonInteraction): Promise<void> {}
 }

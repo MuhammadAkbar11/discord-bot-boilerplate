@@ -11,6 +11,7 @@ export default class FeedbackModal extends Modal {
   }
 
   async Execute(interaction: ModalSubmitInteraction): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ownerId] = interaction.customId.split(":");
 
     // Ownership check

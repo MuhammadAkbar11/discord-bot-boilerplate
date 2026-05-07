@@ -4,32 +4,34 @@ A robust, class-based Discord bot boilerplate built using `discord.js` v14, Type
 
 ## 🌟 Feature Highlights
 
-*   **Unified Command System**: Write a command once and support both Slash and Prefix execution dynamically.
-*   **Centralized Interaction Handling**: Easy-to-manage Button and Select Menu handlers.
-*   **Interaction Expiration Lifecycle**: Automatic cleanup and disabling of stale interactive components.
-*   **Centralized Error Handling**: Unified try-catch flows with safe user-facing error embeds.
-*   **Structured Logging**: Production-ready logging using `pino`.
-*   **Advanced Prefix Parser**: Shell-like argument parsing with full support for quoted strings and escaped characters.
+- **Unified Command System**: Write a command once and support both Slash and Prefix execution dynamically.
+- **Centralized Interaction Handling**: Easy-to-manage Button and Select Menu handlers.
+- **Interaction Expiration Lifecycle**: Automatic cleanup and disabling of stale interactive components.
+- **Centralized Error Handling**: Unified try-catch flows with safe user-facing error embeds.
+- **Structured Logging**: Production-ready logging using `pino`.
+- **Advanced Prefix Parser**: Shell-like argument parsing with full support for quoted strings and escaped characters.
 
 ## 📖 Documentation
 
 For detailed guides on how the bot is structured and how to develop features, see the `docs/` directory:
 
-*   [Architecture Overview](docs/architecture.md)
-*   [Command System](docs/commands.md)
-*   [Interactions System](docs/interactions.md)
-*   [Project Conventions](docs/conventions.md)
-*   [Changelog](CHANGELOG.md)
+- [Architecture Overview](docs/architecture.md)
+- [Command System](docs/commands.md)
+- [Interactions System](docs/interactions.md)
+- [Project Conventions](docs/conventions.md)
+- [Changelog](CHANGELOG.md)
 
 ## 🚀 Installation & Setup
 
 1.  **Clone the repository:**
+
     ```bash
     git clone <repository-url>
     cd <repository-directory>
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     yarn install
     ```
@@ -44,10 +46,10 @@ For detailed guides on how the bot is structured and how to develop features, se
 
 Ensure your `.env` contains the following required variables:
 
-*   `DISCORD_TOKEN` / `DEV_DISCORD_TOKEN`: Your Discord bot token.
-*   `DISCORD_CLIENT_ID` / `DEV_DISCORD_CLIENT_ID`: Your application's client ID.
-*   `DISCORD_GUILD_ID` / `DEV_GUILD_ID`: Used for instant slash command registration in dev mode.
-*   `MONGO_URL`: Your MongoDB connection string.
+- `DISCORD_TOKEN` / `DEV_DISCORD_TOKEN`: Your Discord bot token.
+- `DISCORD_CLIENT_ID` / `DEV_DISCORD_CLIENT_ID`: Your application's client ID.
+- `DISCORD_GUILD_ID` / `DEV_GUILD_ID`: Used for instant slash command registration in dev mode.
+- `MONGO_URL`: Your MongoDB connection string.
 
 ## 🏗️ Project Structure Overview
 
@@ -141,7 +143,10 @@ export default class MySelectMenu extends SelectMenu {
 
   async Execute(interaction: AnySelectMenuInteraction) {
     const selected = interaction.values[0];
-    await interaction.reply({ content: `You selected: ${selected}`, ephemeral: true });
+    await interaction.reply({
+      content: `You selected: ${selected}`,
+      ephemeral: true,
+    });
   }
 }
 ```
@@ -149,11 +154,13 @@ export default class MySelectMenu extends SelectMenu {
 ## 🛠️ Running the Bot
 
 **Development Mode** (auto-restarts on changes):
+
 ```bash
 yarn dev
 ```
 
 **Production Mode** (builds TypeScript and runs it):
+
 ```bash
 yarn start
 ```

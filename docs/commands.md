@@ -37,6 +37,7 @@ async Execute(context: ICommandExecutionContext) {
 In the `constructor` of your command class, you configure settings using the `ICommandOptions` object.
 
 ### The `supports` Configuration
+
 This is the most critical option for unified commands. You must explicitly declare which execution modes your command supports:
 
 ```ts
@@ -47,6 +48,7 @@ supports: {
 ```
 
 ### Slash Commands Options
+
 Slash commands often require specific `options` (e.g., arguments or subcommands). You declare these just like the native Discord API:
 
 ```ts
@@ -55,15 +57,17 @@ options: [
     name: "target",
     description: "The user to target",
     type: ApplicationCommandOptionType.User,
-    required: true
-  }
-]
+    required: true,
+  },
+];
 ```
 
 ### Prefix Commands & Argument Parsing
+
 When a prefix command is executed, the `PrefixParser` processes the remaining text and safely splits it into the `context.args` array.
-*   *Basic:* `y!say hello world` → `context.args = ["hello", "world"]`
-*   *Quoted:* `y!embed "Hello World"` → `context.args = ["Hello World"]`
+
+- _Basic:_ `y!say hello world` → `context.args = ["hello", "world"]`
+- _Quoted:_ `y!embed "Hello World"` → `context.args = ["Hello World"]`
 
 ## Subcommands
 

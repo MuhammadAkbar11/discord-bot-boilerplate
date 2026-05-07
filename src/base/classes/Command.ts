@@ -39,10 +39,12 @@ export default class Command implements ICommand {
     this.supports = options.supports ?? { slash: true, prefix: true };
   }
 
-  async Execute(context: ICommandExecutionContext): Promise<void> {
+  async Execute(_context: ICommandExecutionContext): Promise<void> {
     // throw new Error("Method not implemented.");
   }
-  async AutoComplete(interaction: AutocompleteInteraction<CacheType>): Promise<void> {
+  async AutoComplete(
+    _interaction: AutocompleteInteraction<CacheType>,
+  ): Promise<void> {
     // throw new Error("Method not implemented.");
   }
 }

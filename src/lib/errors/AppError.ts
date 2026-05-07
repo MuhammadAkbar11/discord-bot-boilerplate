@@ -20,18 +20,27 @@ export class ValidationError extends AppError {
 
 export class PermissionError extends AppError {
   constructor(message: string, userMessage?: string) {
-    super(message, userMessage ?? "You do not have permission to perform this action.");
+    super(
+      message,
+      userMessage ?? "You do not have permission to perform this action.",
+    );
   }
 }
 
 export class CommandError extends AppError {
   constructor(message: string, userMessage?: string) {
-    super(message, userMessage ?? "An error occurred while executing the command.");
+    super(
+      message,
+      userMessage ?? "An error occurred while executing the command.",
+    );
   }
 }
 
 export class InteractionError extends AppError {
   constructor(message: string, userMessage?: string) {
-    super(message, userMessage ?? "An error occurred while processing the interaction.");
+    super(
+      message,
+      userMessage ?? "An error occurred while processing the interaction.",
+    );
   }
 }

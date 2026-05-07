@@ -7,25 +7,34 @@ export default class ErrorHandler {
   /**
    * Centralized method to handle all application errors.
    */
-  static async handle(error: Error | AppError, context?: { interaction?: Interaction; message?: Message }): Promise<void> {
+  static async handle(
+    error: Error | AppError,
+    context?: { interaction?: Interaction; message?: Message },
+  ): Promise<void> {
     const isAppError = error instanceof AppError;
-    const userMessage = isAppError ? error.userMessage : "An unexpected error occurred. Please try again later.";
-    
+    const userMessage = isAppError
+      ? error.userMessage
+      : "An unexpected error occurred. Please try again later.";
+
     // Log the error
-    logger.error({
-      event: "application_error",
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        isOperational: isAppError ? error.isOperational : false,
+    logger.error(
+      {
+        event: "application_error",
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          isOperational: isAppError ? error.isOperational : false,
+        },
+        context: {
+          userId: context?.interaction?.user.id ?? context?.message?.author.id,
+          guildId: context?.interaction?.guildId ?? context?.message?.guildId,
+          channelId:
+            context?.interaction?.channelId ?? context?.message?.channelId,
+        },
       },
-      context: {
-        userId: context?.interaction?.user.id ?? context?.message?.author.id,
-        guildId: context?.interaction?.guildId ?? context?.message?.guildId,
-        channelId: context?.interaction?.channelId ?? context?.message?.channelId,
-      }
-    }, error.message);
+      error.message,
+    );
 
     // Respond to user if context is provided
     if (context) {
@@ -38,21 +47,33 @@ export default class ErrorHandler {
     }
   }
 
-  private static async respondToUser(context: { interaction?: Interaction; message?: Message }, message: string): Promise<void> {
+  private static async respondToUser(
+    context: { interaction?: Interaction; message?: Message },
+    message: string,
+  ): Promise<void> {
     const embed = EmbedUtility.createErrorEmbed(message);
 
     try {
       if (context.interaction && context.interaction.isRepliable()) {
         if (context.interaction.replied || context.interaction.deferred) {
-          await context.interaction.followUp({ embeds: [embed], flags: [MessageFlags.Ephemeral] });
+          await context.interaction.followUp({
+            embeds: [embed],
+            flags: [MessageFlags.Ephemeral],
+          });
         } else {
-          await context.interaction.reply({ embeds: [embed], flags: [MessageFlags.Ephemeral] });
+          await context.interaction.reply({
+            embeds: [embed],
+            flags: [MessageFlags.Ephemeral],
+          });
         }
       } else if (context.message) {
         await context.message.reply({ embeds: [embed] });
       }
     } catch (responseError) {
-      logger.error({ event: "error_response_failed", error: responseError }, "Failed to send error response to user.");
+      logger.error(
+        { event: "error_response_failed", error: responseError },
+        "Failed to send error response to user.",
+      );
     }
   }
 }

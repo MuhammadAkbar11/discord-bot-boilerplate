@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ButtonInteraction, MessageFlags } from "discord.js";
 import Button from "../../base/classes/Button";
 import CustomClient from "../../base/classes/CustomClient";

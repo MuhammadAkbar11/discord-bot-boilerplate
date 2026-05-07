@@ -1,7 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  Message,
-} from "discord.js";
+import { ChatInputCommandInteraction, Message } from "discord.js";
 
 export type CommandExecutionType = "slash" | "prefix";
 

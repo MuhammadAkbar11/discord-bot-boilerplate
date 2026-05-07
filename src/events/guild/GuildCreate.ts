@@ -25,7 +25,10 @@ export default class GuildCreate extends Event {
         });
       }
     } catch (error) {
-      logger.error({ event: "guild_create_db_error", guildId: guild.id, error }, "Error updating guild config on join");
+      logger.error(
+        { event: "guild_create_db_error", guildId: guild.id, error },
+        "Error updating guild config on join",
+      );
       return;
     }
 
@@ -56,8 +59,16 @@ export default class GuildCreate extends Event {
         inline: true,
       });
 
-    owner.send({ embeds: [Embed] }).catch(error => {
-      logger.error({ event: "guild_create_dm_error", guildId: guild.id, ownerId: owner.id, error }, "Error sending welcome DM to guild owner");
+    owner.send({ embeds: [Embed] }).catch((error) => {
+      logger.error(
+        {
+          event: "guild_create_dm_error",
+          guildId: guild.id,
+          ownerId: owner.id,
+          error,
+        },
+        "Error sending welcome DM to guild owner",
+      );
       return;
     });
   }

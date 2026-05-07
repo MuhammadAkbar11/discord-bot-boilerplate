@@ -65,7 +65,10 @@ export default class CustomClient extends Client implements ICustomClient {
   }
 
   async Init(): Promise<void> {
-    logger.info({ event: "init_start", mode: ENV_MODE }, `Starting the bot in ${ENV_MODE} mode...`);
+    logger.info(
+      { event: "init_start", mode: ENV_MODE },
+      `Starting the bot in ${ENV_MODE} mode...`,
+    );
     const token = this.developmentMode
       ? this.config.devToken
       : this.config.token;
@@ -74,12 +77,21 @@ export default class CustomClient extends Client implements ICustomClient {
       await this.LoadHandler();
 
       await this.login(token);
-      logger.info({ event: "discord_connected" }, "Successfully logged in to Discord.");
+      logger.info(
+        { event: "discord_connected" },
+        "Successfully logged in to Discord.",
+      );
 
       await connect(this.config.databaseUrl);
-      logger.info({ event: "database_connected" }, "Successfully connected to MongoDB.");
+      logger.info(
+        { event: "database_connected" },
+        "Successfully connected to MongoDB.",
+      );
     } catch (error) {
-      logger.error({ event: "init_failed", error }, "Failed to initialize the bot");
+      logger.error(
+        { event: "init_failed", error },
+        "Failed to initialize the bot",
+      );
       process.exit(1);
     }
   }
@@ -93,10 +105,16 @@ export default class CustomClient extends Client implements ICustomClient {
   }
 
   async Shutdown(): Promise<void> {
-    logger.info({ event: "shutdown_initiated" }, "Graceful shutdown initiated...");
+    logger.info(
+      { event: "shutdown_initiated" },
+      "Graceful shutdown initiated...",
+    );
     this.destroy();
     await disconnect();
-    logger.info({ event: "shutdown_complete" }, "Disconnected from Discord and MongoDB. Goodbye!");
+    logger.info(
+      { event: "shutdown_complete" },
+      "Disconnected from Discord and MongoDB. Goodbye!",
+    );
     process.exit(0);
   }
 }

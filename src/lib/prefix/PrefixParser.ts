@@ -63,7 +63,7 @@ export default class PrefixParser {
     if (inQuotes) {
       throw new ValidationError(
         "Invalid argument formatting: unmatched quotation marks.",
-        "Invalid argument formatting: unmatched quotation marks."
+        "Invalid argument formatting: unmatched quotation marks.",
       );
     }
 

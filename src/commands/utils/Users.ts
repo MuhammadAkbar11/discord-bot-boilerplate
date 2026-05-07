@@ -39,29 +39,47 @@ export default class Users extends Command {
       { id: "9", tag: "UserNine#0009" },
       { id: "10", tag: "UserTen#0010" },
     ];
-    
+
     const page = 1;
-    const pagination = PaginationUtility.getPaginationResult(users, page, DEMO_PAGINATION_PAGE_SIZE);
+    const pagination = PaginationUtility.getPaginationResult(
+      users,
+      page,
+      DEMO_PAGINATION_PAGE_SIZE,
+    );
 
     const embed = new EmbedBuilder()
       .setTitle("👥 Paginated User List (Demo)")
-      .setDescription(pagination.items.map(u => `• **${u.tag}** (ID: ${u.id})`).join("\n"))
-      .setFooter({ text: PaginationUtility.getFooterText(pagination.page, pagination.totalPages) })
+      .setDescription(
+        pagination.items.map((u) => `• **${u.tag}** (ID: ${u.id})`).join("\n"),
+      )
+      .setFooter({
+        text: PaginationUtility.getFooterText(
+          pagination.page,
+          pagination.totalPages,
+        ),
+      })
       .setColor("Blue")
       .setTimestamp();
 
     const row = PaginationUtility.createNavigationRow(
       pagination.page,
       pagination.totalPages,
-      (p) => `pagination:users:${p}`
+      (p) => `pagination:users:${p}`,
     );
 
     let responseMessage;
     if (context.interaction) {
-      const response = await context.interaction.reply({ embeds: [embed], components: [row], withResponse: true });
+      const response = await context.interaction.reply({
+        embeds: [embed],
+        components: [row],
+        withResponse: true,
+      });
       responseMessage = response.resource?.message;
     } else {
-      responseMessage = await context.message!.reply({ embeds: [embed], components: [row] });
+      responseMessage = await context.message!.reply({
+        embeds: [embed],
+        components: [row],
+      });
     }
 
     if (responseMessage) {

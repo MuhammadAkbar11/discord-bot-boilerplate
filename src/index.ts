@@ -3,7 +3,10 @@ import { ENV_MODE } from "./configs/varsConfig";
 import logger from "./lib/logger";
 import ErrorHandler from "./lib/errors/ErrorHandler";
 
-logger.info({ event: "startup", mode: ENV_MODE }, `Application starting in ${ENV_MODE} mode`);
+logger.info(
+  { event: "startup", mode: ENV_MODE },
+  `Application starting in ${ENV_MODE} mode`,
+);
 
 const client = new CustomClient();
 client.Init();

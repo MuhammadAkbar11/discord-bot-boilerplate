@@ -18,9 +18,15 @@ export default class GuildDelete extends Event {
       await GuildConfigModel.findOneAndDelete({
         guildId: guild.id,
       });
-      logger.info({ event: "guild_leave", guildId: guild.id }, `Left guild ${guild.name} (${guild.id})`);
+      logger.info(
+        { event: "guild_leave", guildId: guild.id },
+        `Left guild ${guild.name} (${guild.id})`,
+      );
     } catch (error) {
-      logger.error({ event: "guild_delete_db_error", guildId: guild.id, error }, "Error removing guild config on leave");
+      logger.error(
+        { event: "guild_delete_db_error", guildId: guild.id, error },
+        "Error removing guild config on leave",
+      );
     }
   }
 }

@@ -51,9 +51,8 @@ export default class Feedback extends Command {
       .setRequired(true)
       .setMaxLength(1000);
 
-    const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-      subjectInput,
-    );
+    const firstActionRow =
+      new ActionRowBuilder<TextInputBuilder>().addComponents(subjectInput);
     const secondActionRow =
       new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput);
 

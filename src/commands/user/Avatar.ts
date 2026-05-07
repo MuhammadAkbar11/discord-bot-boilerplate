@@ -71,7 +71,7 @@ export default class Avatar extends SubCommand {
     });
 
     await interaction.respond(
-      members.map(member => ({
+      members.map((member) => ({
         name: member.user.tag,
         value: member.id,
       })),

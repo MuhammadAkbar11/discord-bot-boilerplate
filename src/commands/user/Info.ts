@@ -1,4 +1,9 @@
-import { AutocompleteInteraction, EmbedBuilder, time, TimestampStyles } from "discord.js";
+import {
+  AutocompleteInteraction,
+  EmbedBuilder,
+  time,
+  TimestampStyles,
+} from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import SubCommand from "../../base/classes/SubCommand";
 import { ICommandExecutionContext } from "../../base/interfaces/ICommandExecutionContext";
@@ -28,7 +33,8 @@ export default class Info extends SubCommand {
         }
       }
     } else {
-      target = context.message!.mentions.users.first() || context.message!.author;
+      target =
+        context.message!.mentions.users.first() || context.message!.author;
       // Fallback for prefix command if ID is provided but not a mention
       if (!context.message!.mentions.users.first() && context.args[0]) {
         try {
@@ -56,10 +62,10 @@ export default class Info extends SubCommand {
           name: "Account Created",
           value: `${time(target.createdAt, TimestampStyles.RelativeTime)} (${time(
             target.createdAt,
-            TimestampStyles.LongDate
+            TimestampStyles.LongDate,
           )})`,
           inline: false,
-        }
+        },
       )
       .setColor("Blue")
       .setTimestamp();
@@ -70,7 +76,7 @@ export default class Info extends SubCommand {
         value: member.joinedAt
           ? `${time(member.joinedAt, TimestampStyles.RelativeTime)} (${time(
               member.joinedAt,
-              TimestampStyles.LongDate
+              TimestampStyles.LongDate,
             )})`
           : "Unknown",
         inline: false,
@@ -83,7 +89,9 @@ export default class Info extends SubCommand {
       if (roles.length > 0) {
         embed.addFields({
           name: `Roles (${roles.length})`,
-          value: roles.slice(0, 10).join(" ") + (roles.length > 10 ? ` ...and ${roles.length - 10} more` : ""),
+          value:
+            roles.slice(0, 10).join(" ") +
+            (roles.length > 10 ? ` ...and ${roles.length - 10} more` : ""),
           inline: false,
         });
       }
@@ -101,13 +109,16 @@ export default class Info extends SubCommand {
     const guild = interaction.guild;
     if (!guild) return;
 
-    const members = await guild.members.fetch({ query: focusedValue, limit: 25 });
-    
+    const members = await guild.members.fetch({
+      query: focusedValue,
+      limit: 25,
+    });
+
     await interaction.respond(
-      members.map(member => ({
+      members.map((member) => ({
         name: member.user.tag,
         value: member.id,
-      }))
+      })),
     );
   }
 }

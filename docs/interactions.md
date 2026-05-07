@@ -4,7 +4,7 @@ This project centralizes the handling of Discord message components (Buttons and
 
 ## 🖱️ Button Interactions
 
-Buttons are placed in `src/components/buttons/`. 
+Buttons are placed in `src/components/buttons/`.
 
 To create a new button handler, extend the `Button` base class.
 
@@ -24,9 +24,11 @@ export default class ExampleButton extends Button {
 ```
 
 ### Passing Arguments via `customId`
+
 When setting the `customId` on a button builder, you can pass state/arguments by separating them with a colon (`:`). The first segment **must** be the name of the button class.
 
 Example `customId`: `server_page:123456789:roles:2`
+
 ```ts
 // Inside Execute(interaction: ButtonInteraction)
 const [name, ownerId, category, page] = interaction.customId.split(":");
@@ -59,6 +61,7 @@ Indefinitely persistent buttons can cause "Unknown Interaction" errors or clutte
 To solve this, we use the `InteractionLifecycle` system (`src/lib/interactions/InteractionLifecycle.ts`).
 
 ### How It Works
+
 When you send a message containing interactive components, you can register it with the lifecycle system:
 
 ```ts
@@ -72,12 +75,14 @@ if (responseMessage) {
 2.  If the timeout expires, the system automatically fetches the message, modifies all attached components to `disabled: true`, and appends an `• Interaction expired` notice to the embed footer.
 
 ### Refreshing or Finalizing
-*   **Refreshing**: If a user interacts with the message (e.g., clicking 'Next Page'), simply call `InteractionLifecycle.track(interaction.message, ownerId)` again at the end of your button handler. This resets the timer.
-*   **Finalizing**: If an interaction leads to a "final" state (e.g., dismissing the menu, or finishing a game), call `InteractionLifecycle.untrack(interaction.message.id)` to safely cancel the timeout and prevent it from firing.
+
+- **Refreshing**: If a user interacts with the message (e.g., clicking 'Next Page'), simply call `InteractionLifecycle.track(interaction.message, ownerId)` again at the end of your button handler. This resets the timer.
+- **Finalizing**: If an interaction leads to a "final" state (e.g., dismissing the menu, or finishing a game), call `InteractionLifecycle.untrack(interaction.message.id)` to safely cancel the timeout and prevent it from firing.
 
 ## 📄 Pagination
 
 Pagination is built manually using Button Action Rows updating an active embed. Follow these patterns:
+
 1.  Pass the `pageIndex` in the `customId`.
 2.  In the button handler, calculate bounds `start = (page - 1) * pageSize` and `end = start + pageSize` using constants from `src/constants/limits.ts`.
 3.  Slice the array, update the embed's description and footer, then call `interaction.update()`.

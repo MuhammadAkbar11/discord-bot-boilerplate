@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   AnySelectMenuInteraction,
   AutocompleteInteraction,
@@ -100,7 +101,8 @@ export default class CommandHandler extends Event {
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name)!;
-    const cooldownAmount = (command.cooldown || DEFAULT_COMMAND_COOLDOWN) * 1000;
+    const cooldownAmount =
+      (command.cooldown || DEFAULT_COMMAND_COOLDOWN) * 1000;
     const user = CommandHandler.GetUser(context);
 
     if (
@@ -149,7 +151,7 @@ export default class CommandHandler extends Event {
           );
           if (missingPermissions.length > 0) {
             const permissionNames = missingPermissions
-              .map(p => `**${new PermissionsBitField(p).toArray()}**`)
+              .map((p) => `**${new PermissionsBitField(p).toArray()}**`)
               .join(", ");
 
             logger.warn(
@@ -178,13 +180,13 @@ export default class CommandHandler extends Event {
         // Check Roles
         if (command.roles.length > 0) {
           const hasRole = command.roles.some(
-            roleIdOrName =>
+            (roleIdOrName) =>
               member.roles.cache.has(roleIdOrName) ||
-              member.roles.cache.some(r => r.name === roleIdOrName),
+              member.roles.cache.some((r) => r.name === roleIdOrName),
           );
 
           if (!hasRole) {
-            const roleNames = command.roles.map(r => `**${r}**`).join(" or ");
+            // const roleNames = command.roles.map((r) => `**${r}**`).join(" or ");
 
             logger.warn(
               {

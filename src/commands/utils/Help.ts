@@ -1,8 +1,5 @@
-import {
-  EmbedBuilder,
-  PermissionsBitField,
-  ApplicationCommandOptionType,
-} from "discord.js";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { PermissionsBitField, ApplicationCommandOptionType } from "discord.js";
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
@@ -42,7 +39,7 @@ export default class Help extends Command {
 
     // Filter commands that support the current context type (slash or prefix)
     const supportedCommands = this.client.commands.filter(
-      cmd => cmd.supports[type],
+      (cmd) => cmd.supports[type],
     );
 
     logger.debug(
@@ -56,7 +53,7 @@ export default class Help extends Command {
     for (const [_, command] of supportedCommands) {
       // Find subcommands for this command that also support the current context type
       const commandSubCommands = this.client.subCommands.filter(
-        sub => sub.commandName === command.name && sub.supports[type],
+        (sub) => sub.commandName === command.name && sub.supports[type],
       );
 
       if (commandSubCommands.size > 0) {

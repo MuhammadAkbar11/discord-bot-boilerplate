@@ -25,10 +25,10 @@ export default class Ready extends Event {
       ? this.client.config.devDiscordClientId
       : this.client.config.discordClientId;
     const commands: object[] = this.GetJson(
-      this.client.commands.filter(cmd => cmd.supports.slash),
+      this.client.commands.filter((cmd) => cmd.supports.slash),
     );
     const productionCommands = this.GetJson(
-      this.client.commands.filter(cmd => !cmd.dev && cmd.supports.slash),
+      this.client.commands.filter((cmd) => !cmd.dev && cmd.supports.slash),
     );
     const rest = new REST().setToken(
       this.client.developmentMode
@@ -46,7 +46,7 @@ export default class Ready extends Event {
         {
           event: "commands_registered_global",
           count: globalCommands.length,
-          names: this.client.commands.filter(c => !c.dev).map(c => c.name),
+          names: this.client.commands.filter((c) => !c.dev).map((c) => c.name),
         },
         `Registered ${globalCommands.length} global application (/) commands.`,
       );
@@ -64,7 +64,7 @@ export default class Ready extends Event {
           event: "commands_registered_guild",
           count: devCommands.length,
           guildId: this.client.config.devGuildId,
-          names: this.client.commands.map(c => c.name),
+          names: this.client.commands.map((c) => c.name),
         },
         `Registered ${devCommands.length} guild application (/) commands.`,
       );
@@ -77,7 +77,7 @@ export default class Ready extends Event {
   private LogLoadedCommands(): void {
     const subCommandSummary: Record<string, string[]> = {};
 
-    this.client.subCommands.forEach(subCmd => {
+    this.client.subCommands.forEach((subCmd) => {
       const parent = subCmd.commandName;
       if (!subCommandSummary[parent]) subCommandSummary[parent] = [];
       const label = subCmd.subCommandGroup
@@ -90,11 +90,11 @@ export default class Ready extends Event {
 
     const lines: string[] = [`Loaded (${total}) command(s).`];
 
-    this.client.commands.forEach(cmd => {
+    this.client.commands.forEach((cmd) => {
       lines.push(` - ${cmd.name}`);
       const subs = subCommandSummary[cmd.name];
       if (subs) {
-        subs.forEach(s => lines.push(`       - ${s}`));
+        subs.forEach((s) => lines.push(`       - ${s}`));
       }
     });
 
@@ -102,7 +102,7 @@ export default class Ready extends Event {
   }
 
   private GetJson(commands: Collection<string, Command>): object[] {
-    return commands.toJSON().map(cmd => ({
+    return commands.toJSON().map((cmd) => ({
       name: cmd.name,
       description: cmd.description,
       options: cmd.options,

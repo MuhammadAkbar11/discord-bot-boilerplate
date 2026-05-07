@@ -22,7 +22,7 @@ export default class SubCommand implements ISubCommand {
     this.supports = options.supports ?? { slash: true, prefix: true };
   }
 
-  async Execute(context: ICommandExecutionContext): Promise<void> {}
+  async Execute(_context: ICommandExecutionContext): Promise<void> {}
 
-  async AutoComplete(interaction: AutocompleteInteraction): Promise<void> {}
+  async AutoComplete(_interaction: AutocompleteInteraction): Promise<void> {}
 }

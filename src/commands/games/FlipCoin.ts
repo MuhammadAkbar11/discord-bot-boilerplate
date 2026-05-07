@@ -52,10 +52,17 @@ export default class FlipCoin extends Command {
 
     let responseMessage;
     if (context.interaction) {
-      const response = await context.interaction.reply({ embeds: [embed], components: [row], withResponse: true });
+      const response = await context.interaction.reply({
+        embeds: [embed],
+        components: [row],
+        withResponse: true,
+      });
       responseMessage = response.resource?.message;
     } else {
-      responseMessage = await context.message!.reply({ embeds: [embed], components: [row] });
+      responseMessage = await context.message!.reply({
+        embeds: [embed],
+        components: [row],
+      });
     }
 
     if (responseMessage) {

@@ -49,7 +49,7 @@ export default class InteractionLifecycle {
       });
 
       let content = latestMessage.content;
-      let embeds = latestMessage.embeds.map(e => EmbedBuilder.from(e));
+      const embeds = latestMessage.embeds.map((e) => EmbedBuilder.from(e));
 
       // Add lightweight expiration notice
       if (embeds.length > 0) {

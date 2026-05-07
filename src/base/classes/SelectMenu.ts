@@ -12,5 +12,5 @@ export default class SelectMenu implements ISelectMenu {
     this.name = options.name;
   }
 
-  async Execute(interaction: AnySelectMenuInteraction): Promise<void> {}
+  async Execute(_interaction: AnySelectMenuInteraction): Promise<void> {}
 }

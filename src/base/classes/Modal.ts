@@ -12,5 +12,5 @@ export default class Modal implements IModal {
     this.name = options.name;
   }
 
-  async Execute(interaction: ModalSubmitInteraction): Promise<void> {}
+  async Execute(_interaction: ModalSubmitInteraction): Promise<void> {}
 }

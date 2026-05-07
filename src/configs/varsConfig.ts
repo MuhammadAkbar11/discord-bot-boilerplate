@@ -6,9 +6,7 @@ type ModeTypes = "development" | "production" | "testing";
 
 const appDirname = path.resolve();
 
-const mode: ModeTypes = Boolean(process.env.TS_NODE_DEV)
-  ? "development"
-  : "production";
+const mode: ModeTypes = process.env.TS_NODE_DEV ? "development" : "production";
 
 dotenv.config({
   path: path.join(appDirname, ".env"),
@@ -54,7 +52,7 @@ const validateEnv = () => {
         missing,
         help: "Check your .env file or .env.example",
       },
-      "Missing required environment variables"
+      "Missing required environment variables",
     );
     process.exit(1);
   }
@@ -72,5 +70,7 @@ export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID as string;
 
 // Development
 export const DEV_DISCORD_TOKEN = process.env.DEV_DISCORD_TOKEN as string;
-export const DEV_DISCORD_CLIENT_ID = process.env.DEV_DISCORD_CLIENT_ID as string;
-export const DEV_GUILD_ID = (process.env.DEV_GUILD_ID || process.env.DISCORD_GUILD_ID) as string;
+export const DEV_DISCORD_CLIENT_ID = process.env
+  .DEV_DISCORD_CLIENT_ID as string;
+export const DEV_GUILD_ID = (process.env.DEV_GUILD_ID ||
+  process.env.DISCORD_GUILD_ID) as string;

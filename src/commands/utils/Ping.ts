@@ -1,4 +1,4 @@
-import { EmbedBuilder, PermissionsBitField } from "discord.js";
+import { PermissionsBitField } from "discord.js";
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import ECategory from "../../base/enums/ECategory";
