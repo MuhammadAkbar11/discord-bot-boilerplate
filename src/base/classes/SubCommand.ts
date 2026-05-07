@@ -1,3 +1,4 @@
+import { AutocompleteInteraction } from "discord.js";
 import ISubCommand from "../interfaces/ISubCommand";
 import CustomClient from "./CustomClient";
 import ISubCommandOptions from "../interfaces/ISubCommandOptions";
@@ -22,4 +23,6 @@ export default class SubCommand implements ISubCommand {
   }
 
   async Execute(context: ICommandExecutionContext): Promise<void> {}
+
+  async AutoComplete(interaction: AutocompleteInteraction): Promise<void> {}
 }

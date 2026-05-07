@@ -22,5 +22,5 @@ export default interface ICommand {
   dev: boolean;
   supports: ICommandSupports;
   Execute(context: ICommandExecutionContext): Promise<void>;
-  AutoComplete(interaction: AutocompleteInteraction): void;
+  AutoComplete(interaction: AutocompleteInteraction): Promise<void>;
 }

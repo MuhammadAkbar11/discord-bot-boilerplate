@@ -25,8 +25,9 @@ export default class User extends Command {
             {
               name: "target",
               description: "The user to get information about.",
-              type: ApplicationCommandOptionType.User,
+              type: ApplicationCommandOptionType.String,
               required: false,
+              autocomplete: true,
             },
           ],
         },
@@ -38,8 +39,9 @@ export default class User extends Command {
             {
               name: "target",
               description: "The user to get the avatar of.",
-              type: ApplicationCommandOptionType.User,
+              type: ApplicationCommandOptionType.String,
               required: false,
+              autocomplete: true,
             },
           ],
         },

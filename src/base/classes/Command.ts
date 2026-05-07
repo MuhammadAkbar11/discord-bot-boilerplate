@@ -42,7 +42,7 @@ export default class Command implements ICommand {
   async Execute(context: ICommandExecutionContext): Promise<void> {
     // throw new Error("Method not implemented.");
   }
-  AutoComplete(interaction: AutocompleteInteraction<CacheType>): void {
+  async AutoComplete(interaction: AutocompleteInteraction<CacheType>): Promise<void> {
     // throw new Error("Method not implemented.");
   }
 }

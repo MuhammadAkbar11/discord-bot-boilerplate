@@ -1,5 +1,6 @@
 import {
   AnySelectMenuInteraction,
+  AutocompleteInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
   Collection,
@@ -42,6 +43,8 @@ export default class CommandHandler extends Event {
         args: [],
         interaction,
       });
+    } else if (interaction.isAutocomplete()) {
+      await CommandHandler.ExecuteAutocomplete(this.client, interaction);
     } else if (interaction.isButton()) {
       await CommandHandler.ExecuteButton(this.client, interaction);
     } else if (interaction.isAnySelectMenu()) {
@@ -251,6 +254,42 @@ export default class CommandHandler extends Event {
         interaction: context.interaction,
         message: context.message,
       });
+    }
+  }
+
+  private static async ExecuteAutocomplete(
+    client: CustomClient,
+    interaction: AutocompleteInteraction,
+  ): Promise<void> {
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
+
+    try {
+      const subCommandGroup = interaction.options.getSubcommandGroup(false);
+      const subCommandName = interaction.options.getSubcommand(false);
+
+      if (subCommandName) {
+        const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
+        const subCommandKey = `${interaction.commandName}.${groupPrefix}${subCommandName}`;
+        const subCommand = client.subCommands.get(subCommandKey);
+
+        if (subCommand) {
+          await subCommand.AutoComplete(interaction);
+          return;
+        }
+      }
+
+      await command.AutoComplete(interaction);
+    } catch (error) {
+      logger.error(
+        {
+          event: "autocomplete_error",
+          command: interaction.commandName,
+          user: interaction.user.tag,
+          error: (error as Error).message,
+        },
+        `Error during autocomplete for command /${interaction.commandName}: ${(error as Error).message}`,
+      );
     }
   }
 
