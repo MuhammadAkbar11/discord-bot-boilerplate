@@ -1,4 +1,7 @@
 export default interface IHandler {
-  LoadEvents(): void;
-  LoadCommands(): void;
+  LoadEvents(): Promise<void>;
+  LoadCommands(): Promise<void>;
+  LoadButtons(): Promise<void>;
+  LoadSelectMenus(): Promise<void>;
+  LoadModals(): Promise<void>;
 }

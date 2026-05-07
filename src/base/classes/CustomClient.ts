@@ -15,6 +15,7 @@ import Command from "./Command";
 import SubCommand from "./SubCommand";
 import Button from "./Button";
 import SelectMenu from "./SelectMenu";
+import Modal from "./Modal";
 import { connect, disconnect } from "mongoose";
 import logger from "../../lib/logger";
 import ErrorHandler from "../../lib/errors/ErrorHandler";
@@ -26,6 +27,7 @@ export default class CustomClient extends Client implements ICustomClient {
   subCommands: Collection<string, SubCommand>;
   buttons: Collection<string, Button>;
   selectMenus: Collection<string, SelectMenu>;
+  modals: Collection<string, Modal>;
   cooldowns: Collection<string, Collection<string, number>>;
   developmentMode: boolean;
 
@@ -54,6 +56,7 @@ export default class CustomClient extends Client implements ICustomClient {
     this.subCommands = new Collection();
     this.buttons = new Collection();
     this.selectMenus = new Collection();
+    this.modals = new Collection();
     this.cooldowns = new Collection();
     this.developmentMode = ENV_MODE === "development";
 
@@ -86,6 +89,7 @@ export default class CustomClient extends Client implements ICustomClient {
     await this.handler.LoadCommands();
     await this.handler.LoadButtons();
     await this.handler.LoadSelectMenus();
+    await this.handler.LoadModals();
   }
 
   async Shutdown(): Promise<void> {

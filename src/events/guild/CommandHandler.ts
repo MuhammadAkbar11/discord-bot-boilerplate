@@ -12,6 +12,7 @@ import {
   Message,
   MessageFlags,
   MessageReplyOptions,
+  ModalSubmitInteraction,
   PermissionsBitField,
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
@@ -49,6 +50,8 @@ export default class CommandHandler extends Event {
       await CommandHandler.ExecuteButton(this.client, interaction);
     } else if (interaction.isAnySelectMenu()) {
       await CommandHandler.ExecuteSelectMenu(this.client, interaction);
+    } else if (interaction.isModalSubmit()) {
+      await CommandHandler.ExecuteModal(this.client, interaction);
     }
   }
 
@@ -346,6 +349,35 @@ export default class CommandHandler extends Event {
 
     try {
       await menu.Execute(interaction);
+    } catch (error) {
+      await ErrorHandler.handle(error as Error, { interaction });
+    }
+  }
+
+  private static async ExecuteModal(
+    client: CustomClient,
+    interaction: ModalSubmitInteraction,
+  ): Promise<void> {
+    const customId = interaction.customId;
+    const modalName = customId.split(":")[0];
+    const modal = client.modals.get(modalName);
+
+    if (!modal) return;
+
+    logger.info(
+      {
+        event: "modal_executed",
+        modal: modal.name,
+        user: interaction.user.tag,
+        userId: interaction.user.id,
+        guildId: interaction.guildId,
+        customId,
+      },
+      `User ${interaction.user.tag} submitted modal ${modal.name} (${customId})`,
+    );
+
+    try {
+      await modal.Execute(interaction);
     } catch (error) {
       await ErrorHandler.handle(error as Error, { interaction });
     }

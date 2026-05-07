@@ -8,6 +8,7 @@ import Command from "./Command";
 import SubCommand from "./SubCommand";
 import Button from "./Button";
 import SelectMenu from "./SelectMenu";
+import Modal from "./Modal";
 import logger from "../../lib/logger";
 
 export default class Handler implements IHandler {
@@ -15,6 +16,7 @@ export default class Handler implements IHandler {
   commandsFilepath: string;
   buttonsFilepath: string;
   selectMenusFilepath: string;
+  modalsFilepath: string;
   client: CustomClient;
   constructor(client: CustomClient) {
     this.client = client;
@@ -37,6 +39,11 @@ export default class Handler implements IHandler {
       ENV_MODE === "development"
         ? "src/components/selectMenus/**/*.ts"
         : "build/components/selectMenus/**/*.js";
+
+    this.modalsFilepath =
+      ENV_MODE === "development"
+        ? "src/components/modals/**/*.ts"
+        : "build/components/modals/**/*.js";
   }
 
   async LoadEvents(): Promise<void> {
@@ -149,6 +156,30 @@ export default class Handler implements IHandler {
       );
     } catch (error) {
       logger.error({ event: "select_menus_load_failed", error }, "Error loading select menus");
+    }
+  }
+
+  async LoadModals(): Promise<void> {
+    try {
+      const files = (await glob(this.modalsFilepath)).map(filePath =>
+        path.resolve(filePath),
+      );
+
+      await Promise.all(
+        files.map(async file => {
+          const modal: Modal = new (await import(file)).default(this.client);
+
+          if (!modal?.name) {
+            return logger.error({ event: "modal_load_error", file: path.basename(file) }, "Modal is missing a name.");
+          }
+
+          this.client.modals.set(modal.name, modal);
+
+          delete require.cache[require.resolve(file)];
+        }),
+      );
+    } catch (error) {
+      logger.error({ event: "modals_load_failed", error }, "Error loading modals");
     }
   }
 }
