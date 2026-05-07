@@ -20,18 +20,19 @@ export default class ServerMenu extends SelectMenu {
     });
   }
 
-  async Execute(interaction: AnySelectMenuInteraction): Promise<void | any> {
+  async Execute(interaction: AnySelectMenuInteraction): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ownerId, action] = interaction.customId.split(":");
 
     // Ownership check
     if (interaction.user.id !== ownerId) {
-      return interaction.reply({
+      await interaction.reply({
         embeds: [
           EmbedUtility.createErrorEmbed("You cannot interact with this menu."),
         ],
         flags: [MessageFlags.Ephemeral],
       });
+      return;
     }
 
     if (!interaction.isStringSelectMenu()) return;

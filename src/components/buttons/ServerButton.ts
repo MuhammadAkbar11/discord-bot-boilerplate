@@ -19,17 +19,18 @@ export default class ServerButton extends Button {
     });
   }
 
-  async Execute(interaction: ButtonInteraction): Promise<void | any> {
+  async Execute(interaction: ButtonInteraction): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ownerId, category, pageStr] = interaction.customId.split(":");
     const page = parseInt(pageStr);
 
     // Ownership check
     if (interaction.user.id !== ownerId) {
-      return interaction.reply({
+      await interaction.reply({
         content: "❌ You cannot interact with this button.",
         flags: [MessageFlags.Ephemeral],
       });
+      return;
     }
 
     const guild = interaction.guild;

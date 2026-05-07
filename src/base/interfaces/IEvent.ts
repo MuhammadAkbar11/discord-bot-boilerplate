@@ -6,4 +6,5 @@ export default interface IEvent {
   name: Events;
   description: string;
   once: boolean;
+  Execute(...args: unknown[]): Promise<void>;
 }
