@@ -18,6 +18,7 @@ import SelectMenu from "./SelectMenu";
 import Modal from "./Modal";
 import { connect, disconnect } from "mongoose";
 import logger from "../../lib/logger";
+import StartupValidator from "../../lib/validation/StartupValidator";
 import ErrorHandler from "../../lib/errors/ErrorHandler";
 
 export default class CustomClient extends Client implements ICustomClient {
@@ -74,7 +75,12 @@ export default class CustomClient extends Client implements ICustomClient {
       : this.config.token;
 
     try {
+      StartupValidator.validateEnvironment(this.config);
+
       await this.LoadHandler();
+
+      StartupValidator.validateCommands(this);
+      StartupValidator.validateComponents(this);
 
       await this.login(token);
       logger.info(
