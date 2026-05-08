@@ -30,8 +30,7 @@ export default class Utc extends Command {
     const dataUTC = DayjsUTC().format("HH:mm");
     const utcEmbed = EmbedUtility.createBaseEmbed({
       user,
-      title: "UTC Time",
-      description: `UTC Time: ${dataUTC} UTC`,
+      description: `**UTC Time:** \`${dataUTC}\` UTC`,
     });
 
     if (context.interaction) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * AliasResolution — tests/core/AliasResolution.test.ts
  *
@@ -21,10 +22,7 @@ describe("Alias Resolution", () => {
   }
 
   it("passes validation when all command names are unique", () => {
-    const client = makeClient([
-      { name: "ping" },
-      { name: "help" },
-    ]);
+    const client = makeClient([{ name: "ping" }, { name: "help" }]);
     expect(() => StartupValidator.validateCommands(client)).not.toThrow();
   });
 
@@ -43,7 +41,9 @@ describe("Alias Resolution", () => {
       ]),
       subCommands: new Collection(),
     } as any;
-    expect(() => StartupValidator.validateCommands(conflictClient)).toThrow(/Alias conflict/);
+    expect(() => StartupValidator.validateCommands(conflictClient)).toThrow(
+      /Alias conflict/,
+    );
   });
 
   it("throws when two commands share the same alias", () => {
@@ -51,7 +51,9 @@ describe("Alias Resolution", () => {
       { name: "help", aliases: ["h"] },
       { name: "halp", aliases: ["h"] }, // conflict
     ]);
-    expect(() => StartupValidator.validateCommands(client)).toThrow(/Alias conflict/);
+    expect(() => StartupValidator.validateCommands(client)).toThrow(
+      /Alias conflict/,
+    );
   });
 
   it("throws when a subcommand alias collides with a command alias", () => {
@@ -59,6 +61,8 @@ describe("Alias Resolution", () => {
       [{ name: "user", aliases: ["u"] }],
       [{ name: "info", aliases: ["u"] }], // subcommand alias conflicts with command alias
     );
-    expect(() => StartupValidator.validateCommands(client)).toThrow(/Alias conflict/);
+    expect(() => StartupValidator.validateCommands(client)).toThrow(
+      /Alias conflict/,
+    );
   });
 });
