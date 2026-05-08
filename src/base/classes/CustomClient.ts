@@ -28,7 +28,6 @@ export default class CustomClient extends Client implements ICustomClient {
   buttons: Collection<string, Button>;
   selectMenus: Collection<string, SelectMenu>;
   modals: Collection<string, Modal>;
-  cooldowns: Collection<string, Collection<string, number>>;
   aliases: Collection<string, string>;
   developmentMode: boolean;
 
@@ -58,7 +57,6 @@ export default class CustomClient extends Client implements ICustomClient {
     this.buttons = new Collection();
     this.selectMenus = new Collection();
     this.modals = new Collection();
-    this.cooldowns = new Collection();
     this.aliases = new Collection();
     this.developmentMode = ENV_MODE === "development";
 

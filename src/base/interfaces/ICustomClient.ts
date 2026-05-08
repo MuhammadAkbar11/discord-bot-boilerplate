@@ -15,7 +15,6 @@ export default interface ICustomClient {
   buttons: Collection<string, Button>;
   selectMenus: Collection<string, SelectMenu>;
   modals: Collection<string, Modal>;
-  cooldowns: Collection<string, Collection<string, number>>;
   aliases: Collection<string, string>;
   developmentMode: boolean;
   Init(): Promise<void>;

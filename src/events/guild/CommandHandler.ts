@@ -27,6 +27,7 @@ import {
 import EmbedUtility from "../../lib/embed/EmbedUtility";
 import ErrorHandler from "../../lib/errors/ErrorHandler";
 import { DEFAULT_COMMAND_COOLDOWN } from "../../constants/bot";
+import CooldownManager from "../../lib/cooldowns/CooldownManager";
 import SubCommand from "../../base/classes/SubCommand";
 
 export default class CommandHandler extends Event {
@@ -110,24 +111,15 @@ export default class CommandHandler extends Event {
     }
 
     // --- Cooldown check ---
-    const { cooldowns } = client;
-    if (!cooldowns.has(command.name))
-      cooldowns.set(command.name, new Collection());
-
-    const now = Date.now();
-    const timestamps = cooldowns.get(command.name)!;
-    const cooldownAmount =
-      (command.cooldown || DEFAULT_COMMAND_COOLDOWN) * 1000;
+    const cooldownAmount = command.cooldown || DEFAULT_COMMAND_COOLDOWN;
     const user = CommandHandler.GetUser(context);
 
-    if (
-      timestamps.has(user.id) &&
-      now < (timestamps.get(user.id) || 0) + cooldownAmount
-    ) {
-      const remaining = (
-        ((timestamps.get(user.id) || 0) + cooldownAmount - now) /
-        1000
-      ).toFixed();
+    const remaining = await CooldownManager.getRemainingCooldown(
+      user.id,
+      command.name,
+    );
+
+    if (remaining !== null) {
       await CommandHandler.Reply(context, {
         embeds: [
           EmbedUtility.createErrorEmbed(
@@ -139,8 +131,7 @@ export default class CommandHandler extends Event {
       return;
     }
 
-    timestamps.set(user.id, now);
-    setTimeout(() => timestamps.delete(user.id), cooldownAmount);
+    await CooldownManager.setCooldown(user.id, command.name, cooldownAmount);
 
     // --- Permission & Role check ---
     if (

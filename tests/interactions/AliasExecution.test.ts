@@ -2,6 +2,13 @@ import { describe, it, expect, vi } from "vitest";
 import CommandHandler from "../../src/events/guild/CommandHandler";
 import { Collection } from "discord.js";
 
+vi.mock("../../src/lib/cooldowns/CooldownManager", () => ({
+  default: {
+    getRemainingCooldown: vi.fn().mockResolvedValue(null),
+    setCooldown: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 describe("Alias Execution", () => {
   it("should resolve command alias", async () => {
     const mockCommand = {

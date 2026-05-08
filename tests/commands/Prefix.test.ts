@@ -70,12 +70,12 @@ describe("Prefix Command", () => {
     await command.Execute({ interaction: mockInteraction } as any);
 
     expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
-    expect(mockInteraction.reply).toHaveBeenCalledWith(
-      expect.objectContaining({
-        content: expect.stringContaining("between 1 and 5"),
-        ephemeral: true,
-      }),
-    );
+    expect(mockInteraction.reply).toHaveBeenCalledTimes(1);
+    const calls = mockInteraction.reply.mock.calls;
+    const args = calls[0][0];
+    expect(args.ephemeral).toBe(true);
+    const embed = JSON.parse(JSON.stringify(args.embeds[0]));
+    expect(embed.description).toContain("between 1 and 5");
   });
 
   it("should reject whitespace only prefix", async () => {
@@ -89,12 +89,12 @@ describe("Prefix Command", () => {
     await command.Execute({ interaction: mockInteraction } as any);
 
     expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
-    expect(mockInteraction.reply).toHaveBeenCalledWith(
-      expect.objectContaining({
-        content: expect.stringContaining("cannot be whitespace only"),
-        ephemeral: true,
-      }),
-    );
+    expect(mockInteraction.reply).toHaveBeenCalledTimes(1);
+    const calls = mockInteraction.reply.mock.calls;
+    const args = calls[0][0];
+    expect(args.ephemeral).toBe(true);
+    const embed = JSON.parse(JSON.stringify(args.embeds[0]));
+    expect(embed.description).toContain("cannot be whitespace only");
   });
 
   it("should reject if user lacks permission", async () => {
@@ -108,12 +108,12 @@ describe("Prefix Command", () => {
     await command.Execute({ interaction: mockInteraction } as any);
 
     expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
-    expect(mockInteraction.reply).toHaveBeenCalledWith(
-      expect.objectContaining({
-        content: expect.stringContaining("do not have permission"),
-        ephemeral: true,
-      }),
-    );
+    expect(mockInteraction.reply).toHaveBeenCalledTimes(1);
+    const calls = mockInteraction.reply.mock.calls;
+    const args = calls[0][0];
+    expect(args.ephemeral).toBe(true);
+    const embed = JSON.parse(JSON.stringify(args.embeds[0]));
+    expect(embed.description).toContain("do not have permission");
   });
 
   it("should throw error on DB failure", async () => {
