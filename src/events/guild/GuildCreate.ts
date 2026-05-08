@@ -15,15 +15,11 @@ export default class GuildCreate extends Event {
 
   async Execute(guild: Guild): Promise<void> {
     try {
-      const isGuildExisted = await GuildConfigModel.exists({
-        guildId: guild.id,
-      });
-
-      if (!isGuildExisted) {
-        await GuildConfigModel.create({
-          guildId: guild.id,
-        });
-      }
+      await GuildConfigModel.findOneAndUpdate(
+        { guildId: guild.id },
+        { $setOnInsert: { guildId: guild.id } },
+        { upsert: true, new: true },
+      );
     } catch (error) {
       logger.error(
         { event: "guild_create_db_error", guildId: guild.id, error },
