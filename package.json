@@ -1,6 +1,6 @@
 {
   "name": "discord-bot-boilerplate",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A clean, class-based Discord.js boilerplate built with TypeScript and Mongoose.",
   "main": "index.js",
   "author": "",

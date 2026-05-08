@@ -5,7 +5,7 @@ To ensure the codebase remains clean, maintainable, and predictable as it scales
 ## 📂 Folder Structure
 
 - **`src/commands/<category>/`**: All command files must be grouped logically by category (e.g., `utils`, `games`, `moderation`). Do not place commands in the root of `src/commands/`.
-- **`src/components/buttons/` & `src/components/selectMenus/`**: UI interaction handlers. Avoid creating subdirectories here unless absolutely necessary.
+- **`src/components/buttons/`, `src/components/selectMenus/`, & `src/components/modals/`**: UI interaction handlers (Buttons, Select Menus, Modals). Avoid creating subdirectories here unless absolutely necessary.
 - **`src/events/<discord_category>/`**: Event handlers grouped by Discord's conceptual categories (e.g., `guild`, `client`).
 - **`src/lib/`**: Standalone, generalized utility scripts that are NOT Discord event handlers or command logic (e.g., logger, API wrappers, string formatters).
 - **`src/constants/`**: Static configuration values that are NOT environment variables.
@@ -27,7 +27,7 @@ Do not use "magic strings" or "magic numbers" in your command logic. Always extr
 
 ## 🪪 Interaction Naming (Custom IDs)
 
-When setting `customId` for Buttons or Select Menus, use a strictly colon-delimited structure.
+When setting `customId` for Buttons, Select Menus, or Modals, use a strictly colon-delimited structure.
 
 **Format:** `componentName:ownerId:arg1:arg2`
 
@@ -44,6 +44,8 @@ Always use `EmbedUtility` (`src/lib/embed/EmbedUtility.ts`):
 - `EmbedUtility.createBaseEmbed()`
 - `EmbedUtility.createSuccessEmbed()`
 - `EmbedUtility.createErrorEmbed()`
+- `EmbedUtility.createInfoEmbed()`
+- `EmbedUtility.createWarningEmbed()`
 
 This guarantees uniform colors (defined in `constants/embeds.ts`) and automatic footer formatting.
 
