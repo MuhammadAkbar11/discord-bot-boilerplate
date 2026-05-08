@@ -13,6 +13,7 @@ export default class Info extends SubCommand {
     super(client, {
       name: "info",
       commandName: "user",
+      aliases: ["userinfo"],
       supports: {
         slash: true,
         prefix: true,

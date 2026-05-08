@@ -14,6 +14,7 @@ export default class Help extends Command {
       description: "Displays a list of all available commands.",
       category: ECategory.utilities,
       options: [],
+      aliases: ["h"],
       default_member_permissions: PermissionsBitField.Flags.SendMessages,
       dm_permission: true,
       cooldown: 5,
@@ -50,6 +51,8 @@ export default class Help extends Command {
       "supportedCommands",
     );
 
+    const symbol = type === "slash" ? "/" : context.prefix;
+
     for (const [_, command] of supportedCommands) {
       // Find subcommands for this command that also support the current context type
       const commandSubCommands = this.client.subCommands.filter(
@@ -84,15 +87,31 @@ export default class Help extends Command {
 
           description = findSubDescription(command.options) || description;
 
-          const cmdPath = subCommand.subCommandGroup
-            ? `${command.name} ${subCommand.subCommandGroup} ${subCommand.name}`
-            : `${command.name} ${subCommand.name}`;
+          const aliases = Array.from(subCommand?.aliases);
+
+          let cmdPath = subCommand.subCommandGroup
+            ? `${symbol}${command.name} ${subCommand.subCommandGroup} ${subCommand.name}`
+            : `${symbol}${command.name} ${subCommand.name}`;
+
+          if (type === "prefix" && aliases.length > 0) {
+            const aliasPaths = aliases.map((a) => `${symbol}${a}`).join(" | ");
+            cmdPath = `${symbol}${command.name} ${subCommand.name} | ${aliasPaths}`;
+          }
 
           helpLines.push(`\`${cmdPath}\` — ${description}`);
         }
       } else {
         // Regular command without subcommands
-        helpLines.push(`\`${command.name}\` — ${command.description}`);
+        let cmdPath = `${symbol}${command.name}`;
+
+        if (type === "prefix" && command?.aliases.length > 0) {
+          const aliasPaths = command.aliases
+            .map((a) => `${symbol}${a}`)
+            .join(" | ");
+          cmdPath = `${symbol}${command.name} | ${aliasPaths}`;
+        }
+
+        helpLines.push(`\`${cmdPath}\` — ${command.description}`);
       }
     }
 

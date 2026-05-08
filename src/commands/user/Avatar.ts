@@ -8,6 +8,7 @@ export default class Avatar extends SubCommand {
     super(client, {
       name: "avatar",
       commandName: "user",
+      aliases: ["avatar", "ava"],
       supports: {
         slash: true,
         prefix: true,

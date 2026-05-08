@@ -10,6 +10,7 @@ export default interface ISubCommand {
   name: string;
   commandName: string;
   subCommandGroup?: string;
+  aliases: string[];
   supports: ICommandSupports;
 
   Execute(context: ICommandExecutionContext): Promise<void>;

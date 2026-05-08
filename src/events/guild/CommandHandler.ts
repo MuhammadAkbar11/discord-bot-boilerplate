@@ -27,6 +27,7 @@ import {
 import EmbedUtility from "../../lib/embed/EmbedUtility";
 import ErrorHandler from "../../lib/errors/ErrorHandler";
 import { DEFAULT_COMMAND_COOLDOWN } from "../../constants/bot";
+import SubCommand from "../../base/classes/SubCommand";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -76,9 +77,23 @@ export default class CommandHandler extends Event {
     client: CustomClient,
     context: ICommandExecutionContext,
   ): Promise<void> {
-    const command: Command | undefined = client.commands?.get(
-      context.commandName,
-    );
+    let commandName = context.commandName;
+    let subCommandToExecute: SubCommand | undefined;
+
+    if (context.type === "prefix") {
+      const resolvedAlias = client.aliases.get(commandName);
+      if (resolvedAlias) {
+        if (resolvedAlias.includes(".")) {
+          const [parentName] = resolvedAlias.split(".");
+          commandName = parentName;
+          subCommandToExecute = client.subCommands.get(resolvedAlias);
+        } else {
+          commandName = resolvedAlias;
+        }
+      }
+    }
+
+    const command: Command | undefined = client.commands?.get(commandName);
 
     if (!command) {
       await CommandHandler.Reply(context, "This command does not exist!");
@@ -227,30 +242,36 @@ export default class CommandHandler extends Event {
     );
 
     try {
-      const { subCommandGroup, subCommandName } =
-        CommandHandler.GetSubCommand(context);
+      let subCommand = subCommandToExecute;
 
-      if (subCommandName) {
-        const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
-        const subCommandKey = `${context.commandName}.${groupPrefix}${subCommandName}`;
-        const subCommand = client.subCommands.get(subCommandKey);
+      if (!subCommand) {
+        const { subCommandGroup, subCommandName } =
+          CommandHandler.GetSubCommand(context);
 
-        if (subCommand) {
-          if (!subCommand.supports[context.type]) {
-            await CommandHandler.Reply(
-              context,
-              `This subcommand does not support ${context.type} execution.`,
-            );
-            return;
-          }
+        if (subCommandName) {
+          const groupPrefix = subCommandGroup ? `${subCommandGroup}.` : "";
+          const subCommandKey = `${commandName}.${groupPrefix}${subCommandName}`;
+          subCommand = client.subCommands.get(subCommandKey);
+        }
+      }
 
-          await subCommand.Execute({
-            ...context,
-            args:
-              context.type === "prefix" ? context.args.slice(1) : context.args,
-          });
+      if (subCommand) {
+        if (!subCommand.supports[context.type]) {
+          await CommandHandler.Reply(
+            context,
+            `This subcommand does not support ${context.type} execution.`,
+          );
           return;
         }
+
+        await subCommand.Execute({
+          ...context,
+          args:
+            context.type === "prefix" && !subCommandToExecute
+              ? context.args.slice(1)
+              : context.args,
+        });
+        return;
       }
 
       await command.Execute(context);

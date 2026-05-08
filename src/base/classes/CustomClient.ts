@@ -29,6 +29,7 @@ export default class CustomClient extends Client implements ICustomClient {
   selectMenus: Collection<string, SelectMenu>;
   modals: Collection<string, Modal>;
   cooldowns: Collection<string, Collection<string, number>>;
+  aliases: Collection<string, string>;
   developmentMode: boolean;
 
   constructor() {
@@ -58,6 +59,7 @@ export default class CustomClient extends Client implements ICustomClient {
     this.selectMenus = new Collection();
     this.modals = new Collection();
     this.cooldowns = new Collection();
+    this.aliases = new Collection();
     this.developmentMode = ENV_MODE === "development";
 
     this.on("error", (error) => ErrorHandler.handle(error));

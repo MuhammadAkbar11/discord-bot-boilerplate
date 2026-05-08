@@ -24,6 +24,7 @@ export default class Command implements ICommand {
   cooldown: number;
   dev: boolean;
   supports: ICommandSupports;
+  aliases: string[];
 
   constructor(client: CustomClient, options: ICommandOptions) {
     this.client = client;
@@ -33,6 +34,7 @@ export default class Command implements ICommand {
     this.category = options.category;
     this.default_member_permissions = options.default_member_permissions;
     this.roles = options.roles || [];
+    this.aliases = options.aliases || [];
     this.dm_permission = options.dm_permission;
     this.cooldown = options.cooldown;
     this.dev = options.dev;

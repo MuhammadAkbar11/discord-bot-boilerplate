@@ -9,6 +9,7 @@ export default interface ICommandOptions {
   options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
   roles?: string[];
+  aliases?: string[];
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;

@@ -114,8 +114,40 @@ export default class Handler implements IHandler {
               : "";
             const subCommandKey = `${command.commandName}.${groupPrefix}${command.name}`;
             this.client.subCommands?.set(subCommandKey, command);
+
+            if (command.aliases) {
+              for (const alias of command.aliases) {
+                if (
+                  this.client.commands.has(alias) ||
+                  this.client.aliases.has(alias)
+                ) {
+                  logger.error(
+                    { event: "alias_conflict", alias, file: path.basename(file) },
+                    `Alias conflict: ${alias} is already registered as a command or alias.`,
+                  );
+                  continue;
+                }
+                this.client.aliases.set(alias, subCommandKey);
+              }
+            }
           } else {
             this.client.commands.set(command.name, command as Command);
+
+            if (command.aliases) {
+              for (const alias of command.aliases) {
+                if (
+                  this.client.commands.has(alias) ||
+                  this.client.aliases.has(alias)
+                ) {
+                  logger.error(
+                    { event: "alias_conflict", alias, file: path.basename(file) },
+                    `Alias conflict: ${alias} is already registered as a command or alias.`,
+                  );
+                  continue;
+                }
+                this.client.aliases.set(alias, command.name);
+              }
+            }
           }
 
           delete require.cache[require.resolve(file)];

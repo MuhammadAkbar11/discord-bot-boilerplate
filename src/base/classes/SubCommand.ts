@@ -13,12 +13,14 @@ export default class SubCommand implements ISubCommand {
   commandName: string;
   subCommandGroup?: string;
   supports: ICommandSupports;
+  aliases: string[];
 
   constructor(client: CustomClient, options: ISubCommandOptions) {
     this.client = client;
     this.name = options.name;
     this.commandName = options.commandName;
     this.subCommandGroup = options.subCommandGroup;
+    this.aliases = options.aliases || [];
     this.supports = options.supports ?? { slash: true, prefix: true };
   }
 
