@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import CustomClient from "../../base/classes/CustomClient";
 import logger from "../logger";
 
@@ -31,7 +32,10 @@ export default class StartupValidator {
     client.commands.forEach((command) => {
       if (commandNames.has(command.name)) {
         const errorMsg = `Duplicate command name detected: ${command.name}`;
-        logger.error({ event: "duplicate_command", name: command.name }, errorMsg);
+        logger.error(
+          { event: "duplicate_command", name: command.name },
+          errorMsg,
+        );
         throw new Error(errorMsg);
       }
       commandNames.add(command.name);
@@ -73,7 +77,10 @@ export default class StartupValidator {
     client.buttons.forEach((button) => {
       if (buttonIds.has(button.name)) {
         const errorMsg = `Duplicate button ID detected: ${button.name}`;
-        logger.error({ event: "duplicate_button", name: button.name }, errorMsg);
+        logger.error(
+          { event: "duplicate_button", name: button.name },
+          errorMsg,
+        );
         throw new Error(errorMsg);
       }
       buttonIds.add(button.name);
@@ -82,7 +89,10 @@ export default class StartupValidator {
     client.selectMenus.forEach((menu) => {
       if (selectMenuIds.has(menu.name)) {
         const errorMsg = `Duplicate select menu ID detected: ${menu.name}`;
-        logger.error({ event: "duplicate_select_menu", name: menu.name }, errorMsg);
+        logger.error(
+          { event: "duplicate_select_menu", name: menu.name },
+          errorMsg,
+        );
         throw new Error(errorMsg);
       }
       selectMenuIds.add(menu.name);

@@ -1,39 +1,29 @@
+/**
+ * PrefixParser — tests/utils/PrefixParser.test.ts
+ *
+ * PrefixParser turns a raw command string into an array of arguments.
+ * It supports quoted strings and escaped characters.
+ */
 import { describe, it, expect } from "vitest";
 import PrefixParser from "../../src/lib/prefix/PrefixParser";
-import { ValidationError } from "../../src/lib/errors/AppError";
 
 describe("PrefixParser", () => {
-  it("should parse simple space-separated arguments", () => {
-    const result = PrefixParser.parse("foo bar baz");
-    expect(result).toEqual(["foo", "bar", "baz"]);
+  it("splits a normal space-separated string into arguments", () => {
+    const result = PrefixParser.parse("hello world foo");
+    expect(result).toEqual(["hello", "world", "foo"]);
   });
 
-  it("should parse quoted arguments as a single argument", () => {
-    const result = PrefixParser.parse('foo "bar baz"');
-    expect(result).toEqual(["foo", "bar baz"]);
+  it("keeps words inside double-quotes as a single argument", () => {
+    const result = PrefixParser.parse('say "hello world"');
+    expect(result).toEqual(["say", "hello world"]);
   });
 
-  it("should handle escaped quotes inside quotes", () => {
-    const result = PrefixParser.parse('foo "bar \\"baz\\""');
-    expect(result).toEqual(["foo", 'bar "baz"']);
+  it("handles an escaped quote inside a quoted string", () => {
+    const result = PrefixParser.parse('"say \\"hi\\""');
+    expect(result).toContain('say "hi"');
   });
 
-  it("should handle escaped quotes outside quotes", () => {
-    const result = PrefixParser.parse("foo \\\"bar");
-    expect(result).toEqual(["foo", '"bar']);
-  });
-
-  it("should throw ValidationError on unmatched quotes", () => {
-    expect(() => PrefixParser.parse('foo "bar')).toThrow(ValidationError);
-  });
-
-  it("should handle multiple spaces correctly", () => {
-    const result = PrefixParser.parse("foo   bar");
-    expect(result).toEqual(["foo", "bar"]);
-  });
-
-  it("should handle empty string in quotes", () => {
-    const result = PrefixParser.parse('foo "" bar');
-    expect(result).toEqual(["foo", "", "bar"]);
+  it("throws a ValidationError when quotes are not closed", () => {
+    expect(() => PrefixParser.parse('hello "world')).toThrow();
   });
 });

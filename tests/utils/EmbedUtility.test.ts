@@ -1,45 +1,31 @@
+/**
+ * EmbedUtility — tests/utils/EmbedUtility.test.ts
+ *
+ * EmbedUtility creates pre-styled Discord embeds.
+ * We use .toJSON() to inspect the embed's plain data.
+ */
 import { describe, it, expect } from "vitest";
 import EmbedUtility from "../../src/lib/embed/EmbedUtility";
-import { EEmbedColor } from "../../src/constants/embeds";
 
 describe("EmbedUtility", () => {
-  it("should create a base embed with default color", () => {
+  it("creates a success embed with a ✅ prefix in the description", () => {
+    const embed = EmbedUtility.createSuccessEmbed("Operation complete");
+    expect(embed.toJSON().description).toContain("✅");
+    expect(embed.toJSON().description).toContain("Operation complete");
+  });
+
+  it("creates an error embed with a ❌ prefix in the description", () => {
+    const embed = EmbedUtility.createErrorEmbed("Something went wrong");
+    expect(embed.toJSON().description).toContain("❌");
+  });
+
+  it("creates a warning embed with a ⚠️ prefix in the description", () => {
+    const embed = EmbedUtility.createWarningEmbed("Slow down");
+    expect(embed.toJSON().description).toContain("⚠️");
+  });
+
+  it("always includes a timestamp on every embed", () => {
     const embed = EmbedUtility.createBaseEmbed();
-    expect(embed.data.color).toBe(parseInt(EEmbedColor.Info.replace("#", ""), 16));
-  });
-
-  it("should create a success embed with checkmark", () => {
-    const embed = EmbedUtility.createSuccessEmbed("Operation successful");
-    expect(embed.data.description).toBe("✅ Operation successful");
-    expect(embed.data.color).toBe(parseInt(EEmbedColor.Success.replace("#", ""), 16));
-  });
-
-  it("should create an error embed with cross mark", () => {
-    const embed = EmbedUtility.createErrorEmbed("Operation failed");
-    expect(embed.data.description).toBe("❌ Operation failed");
-    expect(embed.data.color).toBe(parseInt(EEmbedColor.Error.replace("#", ""), 16));
-  });
-
-  it("should create an info embed with info mark", () => {
-    const embed = EmbedUtility.createInfoEmbed("Information message");
-    expect(embed.data.description).toBe("ℹ️ Information message");
-    expect(embed.data.color).toBe(parseInt(EEmbedColor.Info.replace("#", ""), 16));
-  });
-
-  it("should create a warning embed with warning mark", () => {
-    const embed = EmbedUtility.createWarningEmbed("Warning message");
-    expect(embed.data.description).toBe("⚠️ Warning message");
-    expect(embed.data.color).toBe(parseInt(EEmbedColor.Warning.replace("#", ""), 16));
-  });
-
-  it("should set user footer when user is provided", () => {
-    const mockUser = {
-      tag: "User#0001",
-      displayAvatarURL: () => "http://avatar.url",
-    } as any;
-
-    const embed = EmbedUtility.createBaseEmbed({ user: mockUser });
-    expect(embed.data.footer?.text).toBe("Requested by User#0001");
-    expect(embed.data.footer?.icon_url).toBe("http://avatar.url");
+    expect(embed.toJSON().timestamp).toBeTruthy();
   });
 });

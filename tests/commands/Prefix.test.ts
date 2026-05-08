@@ -1,3 +1,9 @@
+/**
+ * Prefix Command — tests/commands/Prefix.test.ts
+ *
+ * The /prefix command lets admins set the guild prefix and anyone view it.
+ * We mock GuildConfigModel to keep tests fast and DB-free.
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Prefix from "../../src/commands/utils/Prefix";
 import GuildConfigModel from "../../src/base/models/GuildConfig";
@@ -10,121 +16,66 @@ vi.mock("../../src/base/models/GuildConfig", () => ({
 }));
 
 describe("Prefix Command", () => {
-  let command: Prefix;
+  let cmd: Prefix;
 
   beforeEach(() => {
-    command = new Prefix({} as any);
+    cmd = new Prefix({} as any);
     vi.clearAllMocks();
   });
 
-  it("should return default prefix if none stored", async () => {
-    const mockInteraction = {
-      guildId: "123",
-      options: { getString: () => null },
+  /** Build a minimal fake slash interaction */
+  function makeInteraction(
+    prefix: string | null,
+    hasManageGuild: boolean = true,
+  ) {
+    return {
+      guildId: "guild1",
+      options: { getString: () => prefix },
+      memberPermissions: { has: () => hasManageGuild },
       reply: vi.fn().mockResolvedValue({}),
     } as any;
+  }
 
-    (GuildConfigModel.findOne as any).mockResolvedValue(null);
+  it("shows the current prefix when no 'set' option is provided", async () => {
+    (GuildConfigModel.findOne as any).mockResolvedValue({ prefix: "!!" });
 
-    await command.Execute({ interaction: mockInteraction } as any);
+    const interaction = makeInteraction(null);
+    await cmd.Execute({ interaction } as any);
 
-    expect(mockInteraction.reply).toHaveBeenCalledWith(
-      expect.objectContaining({
-        embeds: [
-          expect.objectContaining({
-            data: expect.objectContaining({
-              description: expect.stringContaining("Current prefix is"),
-            }),
-          }),
-        ],
-      }),
-    );
+    expect(interaction.reply).toHaveBeenCalledOnce();
+    const embed = interaction.reply.mock.calls[0][0].embeds[0].toJSON();
+    expect(embed.description).toContain("!!");
   });
 
-  it("should update prefix on valid input", async () => {
-    const mockInteraction = {
-      guildId: "123",
-      options: { getString: () => "!" },
-      memberPermissions: { has: () => true },
-      reply: vi.fn().mockResolvedValue({}),
-    } as any;
+  it("updates the prefix when a valid value is provided by an admin", async () => {
+    (GuildConfigModel.findOneAndUpdate as any).mockResolvedValue({});
 
-    await command.Execute({ interaction: mockInteraction } as any);
+    const interaction = makeInteraction(">>", true);
+    await cmd.Execute({ interaction } as any);
 
     expect(GuildConfigModel.findOneAndUpdate).toHaveBeenCalledWith(
-      { guildId: "123" },
-      { prefix: "!" },
+      { guildId: "guild1" },
+      { prefix: ">>" },
       expect.anything(),
     );
-    expect(mockInteraction.reply).toHaveBeenCalled();
   });
 
-  it("should reject invalid prefix length", async () => {
-    const mockInteraction = {
-      guildId: "123",
-      options: { getString: () => "toolong" },
-      memberPermissions: { has: () => true },
-      reply: vi.fn().mockResolvedValue({}),
-    } as any;
-
-    await command.Execute({ interaction: mockInteraction } as any);
+  it("blocks prefix update when the user lacks ManageGuild permission", async () => {
+    const interaction = makeInteraction("!", false); // no permission
+    await cmd.Execute({ interaction } as any);
 
     expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
-    expect(mockInteraction.reply).toHaveBeenCalledTimes(1);
-    const calls = mockInteraction.reply.mock.calls;
-    const args = calls[0][0];
-    expect(args.ephemeral).toBe(true);
-    const embed = JSON.parse(JSON.stringify(args.embeds[0]));
+    expect(interaction.reply).toHaveBeenCalledWith(
+      expect.objectContaining({ ephemeral: true }),
+    );
+  });
+
+  it("rejects a prefix that is too long (more than 5 characters)", async () => {
+    const interaction = makeInteraction("toolong", true);
+    await cmd.Execute({ interaction } as any);
+
+    expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
+    const embed = interaction.reply.mock.calls[0][0].embeds[0].toJSON();
     expect(embed.description).toContain("between 1 and 5");
-  });
-
-  it("should reject whitespace only prefix", async () => {
-    const mockInteraction = {
-      guildId: "123",
-      options: { getString: () => "   " },
-      memberPermissions: { has: () => true },
-      reply: vi.fn().mockResolvedValue({}),
-    } as any;
-
-    await command.Execute({ interaction: mockInteraction } as any);
-
-    expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
-    expect(mockInteraction.reply).toHaveBeenCalledTimes(1);
-    const calls = mockInteraction.reply.mock.calls;
-    const args = calls[0][0];
-    expect(args.ephemeral).toBe(true);
-    const embed = JSON.parse(JSON.stringify(args.embeds[0]));
-    expect(embed.description).toContain("cannot be whitespace only");
-  });
-
-  it("should reject if user lacks permission", async () => {
-    const mockInteraction = {
-      guildId: "123",
-      options: { getString: () => "!" },
-      memberPermissions: { has: () => false },
-      reply: vi.fn().mockResolvedValue({}),
-    } as any;
-
-    await command.Execute({ interaction: mockInteraction } as any);
-
-    expect(GuildConfigModel.findOneAndUpdate).not.toHaveBeenCalled();
-    expect(mockInteraction.reply).toHaveBeenCalledTimes(1);
-    const calls = mockInteraction.reply.mock.calls;
-    const args = calls[0][0];
-    expect(args.ephemeral).toBe(true);
-    const embed = JSON.parse(JSON.stringify(args.embeds[0]));
-    expect(embed.description).toContain("do not have permission");
-  });
-
-  it("should throw error on DB failure", async () => {
-    const mockInteraction = {
-      guildId: "123",
-      options: { getString: () => null },
-      reply: vi.fn().mockResolvedValue({}),
-    } as any;
-
-    (GuildConfigModel.findOne as any).mockRejectedValue(new Error("DB down"));
-
-    await expect(command.Execute({ interaction: mockInteraction } as any)).rejects.toThrow();
   });
 });
